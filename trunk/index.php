@@ -133,7 +133,7 @@ if (isset($_GET['action'])) {
 </tr>
 
 <tr>
-	<td><form method='post'><?php echo $data?></form></td>
+	<td align="left"><form method='post'><?php echo $data?></form></td>
 </tr>	
 <tr>
 	<td align='left' style='font-size:10px;'>

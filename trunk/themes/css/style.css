@@ -249,7 +249,7 @@ div.warning_message
    top:0px; 
    height:20px; 
    left:0px;
-   background:#FFFF00;
+   background:yellow;
    opacity: 0.6; 
    width:100%; 
    padding:10px 0px 10px 0px;
@@ -260,12 +260,15 @@ div.warning_message
 }   
 
 #debug{
+   border-style: dashed;
+   border-width: 1px;
+   background-repeat: no-repeat;
    position:absolute;
    z-index:99; 
    color:black;
    top:0px; 
    left:0px;
-   background:gray;
+   background:#c1c1c1;
    opacity: 0.5;
    padding:5px; 
    padding:10px 0px 10px 0px;
@@ -336,10 +339,6 @@ div.warning_message
 hr{
 	color: #505050;
 	border:1px dashed;
-}
-img{
-	border:0px;
-	box-shadow: 10px 10px 5px #888;
 }
 
 input{

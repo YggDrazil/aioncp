@@ -858,18 +858,18 @@ JS;
 				$this->table->add_row($L['race'],	$row['race'].$EDIT);
 				$this->table->add_row($L['create'],	$row['creation_date']);
 				$this->table->add_row($L['lastexit'],$row['last_online']);
-				$this->table->add_row('Уровень',	$this->get_level($row['exp']));
+				$this->table->add_row($L['level'],	$this->get_level($row['exp']));
 				if (isset($_GET['ajax'])) {
 					exit($content.$this->table->generate().
 					"<a href='".VOID."' 
-						onclick=\"destroy_div('#ajax_{$row['id']}');\" title='Закрыть'>
+						onclick=\"destroy_div('#ajax_{$row['id']}');\" title='".$L['close']."'>
 					<img src='themes/i/dialog_close.png'></a>");
 				}
 				if (!isset($_GET['ajax'])){
 					$menu='<hr>
-					<p><a href="?action=items&char_id='.$row['id'].'">Инвентарь</a></p>
-					<p><a href="?action=chardata&char_id='.$row['id'].'">Данные персонажа</a></p>
-					<p><a href="?action=extra&func=delete_char&char_id='.$row['id'].'">Удалить персонажа</a></p>
+					<p><a href="?action=items&char_id='.$row['id'].'">'.$L['inven'].'</a></p>
+					<p><a href="?action=chardata&char_id='.$row['id'].'">'.$L['char_data'].'</a></p>
+					<p><a href="#?action=extra&func=delete_char&char_id='.$row['id'].'">'.$L['delchar'].'</a></p>
 					';
 				} else $menu='';
 				return $content.$this->table->generate().$menu;
@@ -927,20 +927,20 @@ JS;
 		 	if ($this->db->sql_numrows($result) > 0) {
 		 	// парсинг
 		 		$row=$this->db->sql_fetchrow($result);
-		 		$this->speedbar="<p><a href='?action=info&char=".$row['account_id']."'>".$row['account_name']."</a> &rarr <a href='?action=char&char_name=".$row['name']."'>".$row['name']."</a> &rarr $char_id</p>";
+		 		$this->speedbar="<p><a href='?action=info&char=".$row['account_id']."'>".$row['account_name']."</a> &rarr; <a href='?action=char&char_name=".$row['name']."'>".$row['name']."</a> &rarr; $char_id</p>";
 		 		
-		 		$this->table->add_row('Уровень',$this->get_level($row['exp'])."
-		 		<a href='".VOID."' onclick=\"$('.chlevel').toggle('slow')\" title='Изменить'>
-		 			<img src='themes/i/edit.png' title='Изменить'></a>
+		 		$this->table->add_row($L['level'],$this->get_level($row['exp'])."
+		 		<a href='".VOID."' onclick=\"$('.chlevel').toggle('slow')\" title='".$L['edit']."'>
+		 			<img src='themes/i/edit.png' title='".$L['edit']."'></a>
 		 		
 		 		<div class='chlevel hide'>EXP:<input type='text' class='level' name='level' value='".$row['exp']."'>
-		 				<input type='submit' name='editlevel' class='ui-button ui-state-default ui-corner-all' value='Изменить'>
+		 				<input type='submit' name='editlevel' class='ui-button ui-state-default ui-corner-all' value='".$L['edit']."'>
 		 			<a href='".VOID."' onclick=\"$('.ll').slideToggle('slow')\"><img src='themes/i/wizard.png'></a>
 		 			<div class='ll hide'>$ll</div>
 		 		</div>");
 		 		
 		 		$this->table->add_row('Абис очки',"<input type='text' name='abyss' value='".$this->abyss($char_id)."'>
-		 			<input type='submit' name='editabyss' class='ui-button ui-state-default ui-corner-all' value='Изменить'>");
+		 			<input type='submit' name='editabyss' class='ui-button ui-state-default ui-corner-all' value='".$L['edit']."'>");
 		 		return $content.$this->table->generate();
 		 	
 		 	} else return 'Персонаж не найден о_О';
@@ -1028,16 +1028,17 @@ JS;
 			}
 			// поиск по email
 			if ($ACT=='email_search') {
+			
+				if($this->connect_db!=='ls'){
+					include(CONF);
+					$this->db	=new sql_db($db_host, $db_login, $db_password, $db_login_server);
+					$this->connect_db='ls';	
+				}
 				$email=$this->secure($_GET['email_search']);
 				if ($email=='') {
 					exit($this->b($L['no_result']));
 				}				
-				$result=$this->db->sql_query("SELECT id,name,email FROM `account_data` 
-				WHERE email LIKE '$email%' 
-				OR email='$email' 
-				OR email LIKE '%$email%'
-				OR email LIKE '%$email'
-				");
+				$result=$this->db->sql_query(aion::search_email($email));
 				
 				if ($this->db->sql_numrows($result) > 0) {
 					while (list($id,$name,$email)=$this->db->sql_fetchrow($result)) {
@@ -1421,6 +1422,7 @@ JS;
 
 	 return $level;
 	}
+	
 	// просмотр и изменение предметов
 	private function items(){
 	
@@ -1440,7 +1442,7 @@ JS;
 		";
 		
 		$L = & $this->lang;
-		$this->title='Инвентарь';
+		$this->title=$L['inven'];
 		
 		$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
 		// указан серийник 
@@ -1455,7 +1457,7 @@ JS;
 			// удаление предмета
 		//обновление предмета
 		if(isset($_POST['edited'])) {
-			$itemUniqueId=intval($_POST['itemUniqueId']);
+		   $itemUniqueId=intval($_POST['itemUniqueId']);
 			$itemId		=intval($_POST['itemId']);
 			$itemCount	=intval($_POST['itemCount']);
 			$isEquiped	=intval($_POST['isEquiped']);
@@ -1472,21 +1474,21 @@ JS;
 			$result=$this->db->sql_query("SELECT name,account_name,account_id FROM players WHERE id='$char_id' LIMIT 1"); 
 			if ($this->db->sql_numrows($result) > 0) {
 					 list($name,$account_name,$account_id)=$this->db->sql_fetchrow($result);
-					 $this->speedbar="<p><a href='?action=info&char=$account_id'>$account_name</a> &rarr <a href='?action=char&char_name=$name'>$name</a> &rarr $char_id</p>";
+					 $this->speedbar="<p><a href='?action=info&char=$account_id'>$account_name</a> &rarr; <a href='?action=char&char_name=$name'>$name</a> &rarr; $char_id</p>";
 			}  else {
 				return FALSE;
 			} 
 			
 			
 			$result=$this->db->sql_query("SELECT itemUniqueId,itemId,itemCount,isEquiped,slot FROM inventory WHERE itemOwner=$char_id ORDER BY isEquiped DESC");
-			$this->table->set_heading('Имя предмета','Количество','Одето?','Действие');
+			$this->table->set_heading($L['item_name'],$L['count'],$L['eqiped'],$L['action']);
 			
 			while (list($itemUniqueId,$itemId,$itemCount,$isEquiped,$slot)=$this->db->sql_fetchrow($result))
 			{
 				$action="<a href='".VOID."' onclick=\"invenload('$itemUniqueId')\"><img src='themes/i/edit.png'></a>
 				<a href='?action=items&char_id=$char_id&delete=$itemUniqueId' 
-					onclick=\"if (!confirm('Вы уверены что хотите удалить предмет?')) return false;\"><img src='themes/i/delete.png'></a>";
-				$this->table->add_row($this->get_item_name($itemId),$itemCount,($isEquiped)?'Да':'Нет',$action);
+					onclick=\"if (!confirm('".$L['confimdelitem']."')) return false;\"><img src='themes/i/delete.png'></a>";
+				$this->table->add_row($this->get_item_name($itemId),$itemCount,($isEquiped)?$L['y']:$L['n'],$action);
 			}
 			return $return.$this->table->generate();
 		} else {
@@ -1504,8 +1506,8 @@ JS;
 			$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);	
 			$result=$this->db->sql_query("SELECT itemUniqueId,itemId,itemCount,isEquiped,slot FROM inventory WHERE itemId = $itemid");
 			$content="Найдено ".$this->db->sql_numrows($result)." предметов.
-			<p><a href=''><img src='themes/i/showcharitems.png'> Показать всех персонажей с данным предметом</a></p>
-			<p><a href=''><img src='themes/i/delitem.png'> <font color='red'>Удалить предмет у всех</font></a></p>
+			<p><a href='#indev'><img src='themes/i/showcharitems.png'> Показать всех персонажей с данным предметом</a></p>
+			<p><a href='#indev'><img src='themes/i/delitem.png'> <font color='red'>Удалить предмет у всех</font></a></p>
 			";	
 		}
 	

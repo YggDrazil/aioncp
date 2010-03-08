@@ -79,4 +79,14 @@
 	<level>Level</level>
 	<hm>Hide menu</hm>
 	<sm>Show menu</sm>
+	<inven>Inventory</inven>
+	<char_data>Character data</char_data>
+	<close>Close</close>
+	<delchar>Delete character</delchar>
+	<level>Level</level>
+	<item_name>Item name</item_name>
+	<action>Action</action>
+	<y>Yes</y>
+	<n>No</n>
+	<confimdelitem>Are you sure you want to delete the item?</confimdelitem>
 </lang>

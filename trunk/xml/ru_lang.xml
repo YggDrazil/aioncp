@@ -80,4 +80,14 @@
 	<level>Уровень</level>
 	<hm>Скрыть Меню</hm>
 	<sm>Показать Меню</sm>
+	<inven>Инвентарь</inven>
+	<char_data>Данные персонажа</char_data>
+	<close>Закрыть</close>
+	<delchar>Удалить персонажа</delchar>
+	<level>Уровень</level>
+	<item_name>Имя предмета</item_name>
+	<action>Действие</action>
+	<y>Да</y>
+	<n>Нет</n>
+	<confimdelitem>Вы уверены что хотите удалить предмет?</confimdelitem>
 </lang>
