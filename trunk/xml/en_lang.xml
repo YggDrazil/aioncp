@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lang>
+	<search_account_name>by account name</search_account_name>
+	<menu_main>Main</menu_main>
+	<menu_acclist>Accounts list</menu_acclist>
+	<menu_char_list>Character list</menu_char_list>
+	<menu_search>Search</menu_search>
+	<menu_stat>Statistics</menu_stat>
+	<menu_exit>Logout</menu_exit>
+	<bookmarks>Bookmarks </bookmarks>
+	<char_name>by character name</char_name>
+	<searchemail>by email</searchemail>
+	<no_result>No results</no_result>
+	<finded>Found: </finded>
+	<char_datanotf>character info not found</char_datanotf>
+	<name>name</name>
+	<login>Login</login>
+	<class>Class</class>
+	<race>Race</race>
+	<create>Created</create>
+	<lastexit>Last login</lastexit>
+	<authorize> - Authorization</authorize>
+	<password>Password</password>
+	<enter>LogIn</enter>
+	<error_enter>  Error! Wrong username or password</error_enter>
+	<all>All</all>
+	<account>Account</account>
+	<char>Character</char>
+	<acc_info>Account Information </acc_info>
+	<pass_changed> Password Changed</pass_changed>
+	<acl_change> Access level changed</acl_change>
+	<login_ch> Login changed</login_ch>
+	<email_ch> Email changed</email_ch>
+	<active>Activated</active>
+	<acl>Access Level</acl>
+	<email>Email adress</email>
+	<last_ip>Last IP</last_ip>
+	<none>none</none>
+	<no_char>Non character</no_char>
+	<acc_nf>Account not found!</acc_nf>
+	<edit>Change</edit>
+	<acc_char>Account characters</acc_char>
+	<clickme>Click on me ;)</clickme>
+	<preload>Preload data</preload>
+	<stat_title>Server Statistics</stat_title>
+	<text>Text</text>	
+	<graph>Charts</graph>
+	<stat_act>Active accounts</stat_act>
+	<stat_unact>Not active accounts</stat_unact>	
+	<stat_allacc>Total accounts</stat_allacc>
+	<stat_male>Total male characters</stat_male>
+	<stat_fam>Total female characters</stat_fam>
+	<stat_allch>All characters</stat_allch>
+	<actdeac>Active. (%d)|Not Active.(%d)</actdeac>	
+	<accounts>Accounts</accounts>
+	<sex>Sex</sex>
+	<sexchart>Male (%d)|Female (%d)</sexchart>
+	<host>Host Server</host>
+	<ldb>Account DB</ldb>
+	<gdb>Game DB</gdb>
+	<install>Install</install>
+	<additemtitle>Adding items</additemtitle>
+ 	<errcount>Error! Unspecified count</errcount>
+	<err_not_idorname>Unspecified id or char name!</err_not_idorname>
+	<char_id_nf>Char id not found in database</char_id_nf>
+	<charidgame>Char is online! Need logout from game!</charidgame>
+	<itemadded>Item successfully issued!</itemadded> 			
+	<count>Count</count> 	 
+	<eqiped>equipment?</eqiped> 	 		   
+	<slot>Slot</slot>
+	<char_id>Char id</char_id>
+	<itemnotice>If the number is greater than 1 then the script will first look for a given object in the inventory, if it finds that it increases the amount you specify.</itemnotice>
+	<additem>Add item</additem>   
+	<swidname>Name / ID</swidname>
+	<searchnotice>Use a '_' to indicate the unknown characters.</searchnotice>
+	<addbookm>Add in bookmarks</addbookm>
+	<charnamech>Char name changed to </charnamech>	
+	<iditem>Item id</iditem>   	
+	<level>Level</level>
+	<hm>Hide menu</hm>
+	<sm>Show menu</sm>
+</lang>
