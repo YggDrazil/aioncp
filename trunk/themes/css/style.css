@@ -59,7 +59,7 @@ div.icon-no-spacer{
 }
 div.icon-no-spacer p a{
 	background-color:#e1e1e1;
-	background-image:url('menubg.png');	
+	background-image:url('../i/menubg.png');	
 }
 div.icon-spacer{
 	width:85px;
@@ -276,7 +276,7 @@ div.warning_message
 }
 
 .main_form{
-	background-image:url('login_form.png');
+	background-image:url('../i/login_form.png');
 	background-repeat: no-repeat; 
 	width:346px; 
 	height:171px;
@@ -299,14 +299,14 @@ div.warning_message
 	border: 0px;
 	height:30px;
 	background-color: #acacac;
-	background-image:url('inputbg.png');
+	background-image:url('../i/inputbg.png');
 
 }
 .main_form .button{
 	width: 100px;
 //	padding: 10px;
 	vertical-align:middle;
-	background-image:url('inputbg.png');
+	background-image:url('../i/inputbg.png');
 	cursor:pointer;
 }
 
@@ -317,7 +317,8 @@ div.warning_message
 	cursor:pointer;
 	z-index:5; 
 	top:0px; 
-	height:8px;
+	height:10px;
+	font-size: 10px;
 	background:#505050;
 	opacity: 0.3; 
 	color: white;

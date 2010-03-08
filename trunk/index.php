@@ -3,16 +3,15 @@ session_start();
 /* ------------------------------------------------------------------------
 
 	CP for Aoin
-	beta version
+	version 0.4
 	www.fdcore.ru
 	
-	*комменты бля специально для русских няко-няк прогеров xD*
 */
 define('CONF', 'config.php');
 include('./class/core.php');
 define('START_TIME', microtime());
 
-// список файлов
+// includes files
 $class_list=array(
 	'controller.php',
 	'mysql.class.php',
@@ -31,7 +30,7 @@ foreach ($class_list as $key => $value) {
 	include($value);
 }
 // ------------------------------------------------------------------------
-/*	Меняем язык */
+/*	Меняем язык \ Changes lang */
 if (isset($_GET['lang'])) {
 	$_SESSION['lang']=$_GET['lang'];
 	header("location: ".$_SERVER['HTTP_REFERER']);
@@ -44,12 +43,14 @@ $cp->check_sql_inject();  // проверка POST
 $cp->db_mssql_check_xss(); // проверка GET 
 $data	=	$cp->index(); // главный контроллер
 /* ------------------------------------------------------------------------
-	а дальше бля не трогать xD
+	Jquery Effect (chenged in core.php)
 */
 if (JS_EFFECT==FALSE) {
 	$cp->js="$.fx.off = !$.fx.off;".$cp->js;
 }
-
+/* ------------------------------------------------------------------------
+	CP Action 
+*/
 if (isset($_GET['action'])) {
 	$ACT=$_GET['action'];
 } else $ACT='';
@@ -60,7 +61,7 @@ if (isset($_GET['action'])) {
 	"http://www.w3.org/TR/html4/strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:php="http://php.net/xsl">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title><?php echo $cp->title?> Aion CP</title>
+<title><?php echo $cp->title; ?> Aion CP</title>
 <link rel="stylesheet" href="themes/css/style.css" type="text/css">
 <link type="text/css" href="themes/css/blitzer/jquery-ui-1.8rc3.custom.css" rel="stylesheet" />
 <script type="text/javascript" src="themes/js/jquery.js"></script>
@@ -72,7 +73,7 @@ if (isset($_GET['action'])) {
  	<div class='ajax_fav hide fav'>
  		<div class='fav'><a href="javascript:void(0)" onclick="$('.ajax_fav').hide('slow');"><img src='themes/i/dialog_close.png' alt='close'></a></div>
  		<div class='ajax_fav_load'><?php echo $cp->ajax() ?></div></div>
-	<div id='loader'><img src='i/wait.gif' alt='wait'></div>
+	<div id='loader'><img src='themes/i/wait.gif' alt='wait'></div>
 <?php if($cp->logged) { ?>		
 	<div class='topmenu' id='hm'><?php echo $cp->lang['hm'];?></div>
 	<div class='topmenu hide' id='sm'><?php echo $cp->lang['sm'];?></div>
@@ -107,7 +108,7 @@ if (isset($_GET['action'])) {
 					<p><a href="?action=statistic"><img src="themes/i/help_about.png" alt='' /><br><?php echo $cp->lang['menu_stat'];?></a></p> 
 				</div>
 				<div class="<?php if($ACT=='server')echo $unh; else echo $h;?>"> 
-					<p><a href="?action=server"><img src="themes/i/work_server.png" alt='' /><br>Работа с сервером</a></p> 
+					<p><a href="?action=server"><img src="themes/i/work_server.png" alt='' /><br>Work for server</a></p> 
 				</div> 
 				
 				<div class="<?php if($ACT=='items')echo $unh; else echo $h;?>"> 
