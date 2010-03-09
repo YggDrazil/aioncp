@@ -1189,7 +1189,12 @@ JS;
 			$this->table->add_row($L['iditem'],"<input type='text' name='id' id='iid'><a href='".VOID."' onclick=\"$('.fastlist').toggle('fast');\" title='Fast items'><img src='themes/i/wizard.png' title='Fast items'></a>");  
 			
 			$this->table->add_row('',"<div class='fastlist hide'>
-			 <a href='".VOID."' onclick=\"add_item('182400001')\">Money</a><br>
+			
+			 <a href='".VOID."' onclick=\"add_item('182400001')\">".$this->get_item_name(182400001)."</a><br>
+			 <a href='".VOID."' onclick=\"add_item('162000029')\">".$this->get_item_name(162000029)."</a><br>
+			 <a href='".VOID."' onclick=\"add_item('162000066')\">".$this->get_item_name(162000066)."</a><br>
+
+			 
 			</div>");
 			
 			$this->table->add_row($L['count'],"<input type='text' name='count' value='1'>");
@@ -1515,7 +1520,9 @@ JS;
 	}
 	
 	function edititem(){
+	
 		include(CONF);
+		$L = & $this->lang;
 		$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
 		
 		if(isset($_GET['item'])){
@@ -1525,10 +1532,10 @@ JS;
 				extract($row);
 				
 				$this->table->add_row('Уникальный номер',"<input name='itemUniqueId' type='hidden' value='$itemUniqueId'>".$itemUniqueId);
-				$this->table->add_row('Код предмета',"<input name='itemId' type='text' value='$itemId'><br>".$this->get_item_name($itemId));
-				$this->table->add_row('Количество',"<input name='itemCount' type='text' value='$itemCount'>");
-				$this->table->add_row('Одет',"<input name='isEquiped' type='text' value='$isEquiped'>");
-				$this->table->add_row('Номер слота',"<input name='slot' type='text' value='$slot'>");
+				$this->table->add_row($L['iditem'],"<input name='itemId' type='text' value='$itemId'><br>".$this->get_item_name($itemId));
+				$this->table->add_row($L['count'],"<input name='itemCount' type='text' value='$itemCount'>");
+				$this->table->add_row($L['eqiped'],"<input name='isEquiped' type='text' value='$isEquiped'>");
+				$this->table->add_row($L['slot'],"<input name='slot' type='text' value='$slot'>");
 				
 				exit($this->table->generate()."<input type='submit' name='edited' value='Сохранить'>");			
 		}

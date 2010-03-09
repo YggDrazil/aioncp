@@ -107,12 +107,12 @@ if (isset($_GET['action'])) {
 				<div class="<?php if($ACT=='statistic')echo $unh; else echo $h;?>"> 
 					<p><a href="?action=statistic"><img src="themes/i/help_about.png" alt='' /><br><?php echo $cp->lang['menu_stat'];?></a></p> 
 				</div>
-				<div class="<?php if($ACT=='server')echo $unh; else echo $h;?>"> 
+				<!--<div class="<?php if($ACT=='server')echo $unh; else echo $h;?>"> 
 					<p><a href="?action=server"><img src="themes/i/work_server.png" alt='' /><br>Work for server</a></p> 
-				</div> 
+				</div> -->
 				
 				<div class="<?php if($ACT=='items')echo $unh; else echo $h;?>"> 
-					<p><a href="?action=items"><img src="themes/i/items.png" alt='' /><br>Работа с предметами</a></p> 
+					<p><a href="?action=items"><img src="themes/i/items.png" alt='' /><br><?php echo $cp->lang['workitem'];?></a></p> 
 				</div> 				
 				
 				<div class="<?php echo $h;?>"> 
