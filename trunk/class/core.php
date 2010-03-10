@@ -5,4 +5,7 @@ define('DEBUG', TRUE);
 define('DEFAULT_LANG','ru');
 // jquery effect
 define('JS_EFFECT',TRUE);
-define('TITLE','Free Aion CP');
+// main title postfix
+define('TITLE','Free Aion CP'); 
+// work driver !
+define('DRIVER', 'mysql');

@@ -20,7 +20,7 @@ class cpanel
 	private $table;
 	private $db;
 	public $js='';
-	public $title=TITLE;
+	public $title='';
 	public $logged=FALSE;
 	public $speedbar='';
 	public $lang=array();
@@ -508,12 +508,19 @@ $this->js=<<<JS
 	  return false;
 });
 JS;
-		$chars=range('a','z');
-		foreach ($chars as $key => $value) {
-			$chars[$key]="<a href='?action=accounts&C=$value' onclick=\"ajax_chars('$value');return false;\">$value</a> ";
+		if(file_exists("./cache/account_chars.cache")){
+			$this->speedbar=file_get_contents("./cache/account_chars.cache");
+		} else {
+			$chars=range('a','z');
+			foreach ($chars as $key => $value) {
+				$chars[$key]="<a href='?action=accounts&C=$value' onclick=\"ajax_chars('$value');return false;\">$value</a> ";
+			}
+			$chars[]="<a href='?action=accounts' onclick=\"ajax_chars('');return false;\">".$L['all']."</a> <input type='text' id='chkey' name='char' maxlength='1' style='width:10px'>";
+			$sp="<strong>".$this->table->generate($chars).'</strong>';
+			file_put_contents("./cache/account_chars.cache",$sp);
+			$this->speedbar=$sp;
 		}
-		$chars[]="<a href='?action=accounts' onclick=\"ajax_chars('');return false;\">".$L['all']."</a> <input type='text' id='chkey' name='char' maxlength='1' style='width:10px'>";
-		$this->speedbar="<strong>".$this->table->generate($chars).'</strong>';
+
 		$this->table->clear();
 		$this->table->set_heading($L['account'],$L['char']);
 		
@@ -900,9 +907,16 @@ JS;
 			$char_id=intval($_GET['char_id']);
 			$abyss=intval($_POST['abyss']);
 			$this->db->sql_query("UPDATE abyss_rank SET ap = $abyss WHERE player_id = $char_id LIMIT 1");
-			$content.="<div class='info_msg'>Значение абис очков изменено на $abyss!</div>";
+			$content.="<div class='info_msg'>".sprintf($L['abysschange'],$abyss)."</div>";
 		}
-			
+		
+		if(isset($_POST['editlevel']) && isset($_GET['char_id']))	
+		{
+			$char_id=intval($_GET['char_id']);
+			$level=intval($_POST['level']);
+			$this->db->sql_query("UPDATE players SET exp = $level WHERE id = $char_id LIMIT 1");
+			$content.="<div class='info_msg'>".$L['levelchange']."</div>";			
+		}
 		 // передан id
 		 if (isset($_GET['char_id'])){
 		 	
@@ -915,6 +929,7 @@ JS;
 			 	$level=$this->exp_list();
 			 	foreach ($level as $key => $value)
 			 	{
+			 		$value=$value-1;
 			 		$ll.="<option value='$value'>$key</option>";
 			 	}
 			 	$ll.="</select>";
@@ -939,11 +954,11 @@ JS;
 		 			<div class='ll hide'>$ll</div>
 		 		</div>");
 		 		
-		 		$this->table->add_row('Абис очки',"<input type='text' name='abyss' value='".$this->abyss($char_id)."'>
+		 		$this->table->add_row($L['abyss'],"<input type='text' name='abyss' value='".$this->abyss($char_id)."'>
 		 			<input type='submit' name='editabyss' class='ui-button ui-state-default ui-corner-all' value='".$L['edit']."'>");
 		 		return $content.$this->table->generate();
 		 	
-		 	} else return 'Персонаж не найден о_О';
+		 	} else return $L['charnotfound'];
 		 }// if	
 		 
 		 
@@ -1504,6 +1519,7 @@ JS;
 	function item_finder(){
 		$content='';
 		$itemid='';
+		$L = & $this->lang;
 		
 		if(isset($_POST['item'])){
 			$itemid=intval($_POST['item']);
@@ -1531,20 +1547,23 @@ JS;
 				$row=$this->db->sql_fetchrow($result);
 				extract($row);
 				
-				$this->table->add_row('Уникальный номер',"<input name='itemUniqueId' type='hidden' value='$itemUniqueId'>".$itemUniqueId);
+				$this->table->add_row($L['uniqn'],"<input name='itemUniqueId' type='hidden' value='$itemUniqueId'>".$itemUniqueId);
 				$this->table->add_row($L['iditem'],"<input name='itemId' type='text' value='$itemId'><br>".$this->get_item_name($itemId));
 				$this->table->add_row($L['count'],"<input name='itemCount' type='text' value='$itemCount'>");
 				$this->table->add_row($L['eqiped'],"<input name='isEquiped' type='text' value='$isEquiped'>");
 				$this->table->add_row($L['slot'],"<input name='slot' type='text' value='$slot'>");
 				
-				exit($this->table->generate()."<input type='submit' name='edited' value='Сохранить'>");			
+				exit($this->table->generate()."<input type='submit' name='edited' value='".$L['save']."'>");			
 		}
 	}
 // получение название предмета	
 	private function get_item_name($id){
+	
 	if (isset($_SESSION['lang'])) {
 		$file_name=$_SESSION['lang']."_items";
-	} else $file_name="ru_items";
+	} else $file_name=DEFAULT_LANG."_items";
+	
+	$L = & $this->lang; // link
 	
 	// если не создан массив
 	if($this->items==''){
@@ -1571,7 +1590,7 @@ JS;
 	 }
 	} 
 	// массив есть ищем предмет
-		if(isset($this->items[$id])) return $this->items[$id]; else return 'Неизвестный предмет';
+		if(isset($this->items[$id])) return $this->items[$id]; else return $L['erritem'];
 	}
 
 /*------------------------------------------------------------------------

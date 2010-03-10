@@ -14,9 +14,9 @@ define('START_TIME', microtime());
 // includes files
 $class_list=array(
 	'controller.php',
-	'mysql.class.php',
+	 DRIVER.'.class.php',
 	'table.class.php',
-	'model.php',
+	DRIVER.'.model.php',
 );
 
 foreach ($class_list as $key => $value) {
@@ -61,7 +61,7 @@ if (isset($_GET['action'])) {
 	"http://www.w3.org/TR/html4/strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:php="http://php.net/xsl">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title><?php echo $cp->title; ?> Aion CP</title>
+<title><?php echo $cp->title." ".TITLE; ?></title>
 <link rel="stylesheet" href="themes/css/style.css" type="text/css">
 <link type="text/css" href="themes/css/blitzer/jquery-ui-1.8rc3.custom.css" rel="stylesheet" />
 <script type="text/javascript" src="themes/js/jquery.js"></script>

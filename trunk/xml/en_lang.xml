@@ -89,5 +89,12 @@
 	<y>Yes</y>
 	<n>No</n>
 	<confimdelitem>Are you sure you want to delete the item?</confimdelitem>
-	<workitem>Work at Items</workitem>
+	<workitem>Work at Items</workitem>  
+	<charnotfound>Char is not found о_О</charnotfound>
+	<levelchange>Character level is changed!</levelchange>
+	<abysschange>Abyss points changed to %d!</abysschange>
+	<abyss>Abyss points</abyss>
+	<uniqn>Unique</uniqn>
+	<save>Save</save>
+	<erritem>Unknown item</erritem>
 </lang>
