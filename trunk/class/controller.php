@@ -3,10 +3,10 @@
 
 	Free CP for Aoin
 	beta version
-	www.fdcore.ru
+	Developer www.fdcore.ru
 	
-	*комменты бля специально для русских няко-няк прогеров xD*
-*/
+	http://code.google.com/p/aioncp/
+------------------------------------------------------------------------ */
 /**
  * Main controller class
  *
@@ -296,11 +296,11 @@ TEXT;
 		if (isset($_GET['action'])) {
 			$return.=$this->action($_GET['action']);
 		} else {
-			if (isset($_SESSION['lang']) && $_SESSION['lang']=='en') $return="Thank you for choosing our implementation 
+			if (isset($_SESSION['lang']) && $_SESSION['lang']=='en' && DEFAULT_LANG=='en') $return="Thank you for choosing our implementation 
 			of a control panel for game server Aion.<br>Now Current sponsor is:
 			<br><a href='http://pvpworld.ru'><img src='themes/i/sponsor.jpg'></a>
 				<br>Donate: PayPal email sealnetsoul@gmail.com";
-				else
+				elseif (isset($_SESSION['lang']) && $_SESSION['lang']=='ru')
 			$return='<div>Спасибо что выбрали нашу разработку панели управления для игрового сервера Aion.<br>Наш текущий спонсор:
 			<br><a href="http://pvpworld.ru"><img src="themes/i/sponsor.jpg"></a></div>';
 		}
@@ -409,14 +409,14 @@ TEXT;
 	 function check_sql_inject() 
 	  { 
 	    $badchars = array("--","truncate","tbl_","exec",	";","'","*","/"," \ ","drop",
-	    	"select","update","delete","where", "-1", "-2", "-3","-4", "-5", "-6", "-7", "-8", "-9"); 
+	    	"select","update","delete","where"); 
 	    foreach($_POST as $value) 
 	    { 
 		    foreach($badchars as $bad) 
 		    {
 			    if(strstr(strtolower($value),$bad)<>FALSE) 
 			    {
-			    	die('Hacking attept!');
+			    	die("Hacking attept! Found text: $bad");
 			    }
 			}
 	    } 
@@ -622,7 +622,12 @@ JS;
 				}
 			}
 			// POST data end
-			
+			$tmpl = array (
+                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" id="tablesorter">',
+                    'row_start'           => '<tr style="background:#E9E9E9">',
+                    'row_alt_start'       => '<tr style="background:#F8F8F8">',
+              );
+			$this->table->set_template($tmpl);				
 			$result=$this->db->sql_query("SELECT id,name,password,activated,access_level,email,last_ip,ip_force FROM account_data WHERE id=$char");
 			if ($this->db->sql_numrows($result) > 0) {
 				$row=$this->db->sql_fetchrow($result);
@@ -707,7 +712,15 @@ JS;
 			include(CONF);
 			$this->db	=new sql_db($db_host, $db_login, $db_password, $db_login_server); 
 			$this->connect_db='ls';
-		} 		
+		} 	
+		$tmpl = array (
+                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" id="tablesorter">',
+                    'row_start'           => '<tr style="background:rgba(233,233,233,0.8)">',
+                    'row_alt_start'       => '<tr style="background:rgba(248,248,248,0.8)">',
+        );
+		$this->table->set_template($tmpl);	
+		
+			
   		$this->speedbar="<a href='".VOID."' 
   		onclick=\"$('#text').slideToggle('slow');return false;\">".$L['text']."</a> | 
   			<a href='".VOID."' 
@@ -842,6 +855,14 @@ $(".class_edit").click(function(){
 	 $(".class_edit").html("<input type='text' value='"+class_text+"'>");
 });		                 
 JS;
+
+			$tmpl = array (
+                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" id="tablesorter">',
+                    'row_start'           => '<tr style="background:#E9E9E9">',
+                    'row_alt_start'       => '<tr style="background:#F8F8F8">',
+              );
+			$this->table->set_template($tmpl);	
+			
 			if ($this->db->sql_numrows($result) > 0) {   
 				$row=$this->db->sql_fetchrow($result);
 				$this->table->add_row('id',	$row['id']);
@@ -860,7 +881,11 @@ JS;
 				*/
 				if (isset($_GET['ajax'])) $EDIT=''; else $EDIT="<a href='".VOID."' onclick=\"alert('Данная функция будет доступна позже.')\" title='Изменить'><img src='themes/i/edit.png'  title='Изменить'></a>";
 				
-				
+				if($this->is_online($row['id'])){
+		 			$this->table->add_row('Статус','<font color="lime">Online</font> <img src="themes/i/error.png">');
+		 		} else{
+		 			$this->table->add_row('Статус','<font color="red">Offline</font> <img src="themes/i/success.gif">');
+		 		}
 				$this->table->add_row($L['class'],	$row['player_class'].$EDIT);
 				$this->table->add_row($L['race'],	$row['race'].$EDIT);
 				$this->table->add_row($L['create'],	$row['creation_date']);
@@ -902,20 +927,33 @@ JS;
 			 $this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server); 
 			 $this->connect_db='gs';
 		}
-		
+		// изменение абис очков
 		if (isset($_POST['editabyss']) && isset($_GET['char_id'])) {
 			$char_id=intval($_GET['char_id']);
 			$abyss=intval($_POST['abyss']);
 			$this->db->sql_query("UPDATE abyss_rank SET ap = $abyss WHERE player_id = $char_id LIMIT 1");
 			$content.="<div class='info_msg'>".sprintf($L['abysschange'],$abyss)."</div>";
 		}
-		
+		// изменение уровня персонажа
 		if(isset($_POST['editlevel']) && isset($_GET['char_id']))	
 		{
 			$char_id=intval($_GET['char_id']);
 			$level=intval($_POST['level']);
 			$this->db->sql_query("UPDATE players SET exp = $level WHERE id = $char_id LIMIT 1");
 			$content.="<div class='info_msg'>".$L['levelchange']."</div>";			
+		}
+		// телепортирование
+		if (isset($_POST['teleport']) && isset($_GET['char_id'])) {
+			$char_id=intval($_GET['char_id']);
+			$cordinate=intval($_POST['cordinate']);
+			$C=$this->world($cordinate);
+			$this->db->sql_query("UPDATE players 
+				SET world_id = ".$C['w'].", 
+				x = ".$C['x'].",
+				y = ".$C['y'].",
+				z = ".$C['z']."
+				WHERE id = $char_id LIMIT 1");
+			$content.="<div class='info_msg'>Телепортирован!</div>";	
 		}
 		 // передан id
 		 if (isset($_GET['char_id'])){
@@ -925,7 +963,7 @@ JS;
 		 	if(file_exists('./cache/level.cache')){
 		 		$ll=file_get_contents('./cache/level.cache');	
 		 	} else {
-		 		$ll='&rarr; <select name="levels" class="levels" onclick="$(\'.level\').val($(this).val())">'; // Level List
+		 		$ll='&rarr; <select class="levels" onclick="$(\'.level\').val($(this).val())">'; // Level List
 			 	$level=$this->exp_list();
 			 	foreach ($level as $key => $value)
 			 	{
@@ -943,6 +981,11 @@ JS;
 		 	// парсинг
 		 		$row=$this->db->sql_fetchrow($result);
 		 		$this->speedbar="<p><a href='?action=info&char=".$row['account_id']."'>".$row['account_name']."</a> &rarr; <a href='?action=char&char_name=".$row['name']."'>".$row['name']."</a> &rarr; $char_id</p>";
+		 		if($this->is_online($char_id)){
+		 			$this->table->add_row('Статус','<font color="lime">Online</font> <img src="themes/i/error.png">');
+		 		} else{
+		 			$this->table->add_row('Статус','<font color="red">Offline</font> <img src="themes/i/success.gif">');
+		 		}
 		 		
 		 		$this->table->add_row($L['level'],$this->get_level($row['exp'])."
 		 		<a href='".VOID."' onclick=\"$('.chlevel').toggle('slow')\" title='".$L['edit']."'>
@@ -956,6 +999,37 @@ JS;
 		 		
 		 		$this->table->add_row($L['abyss'],"<input type='text' name='abyss' value='".$this->abyss($char_id)."'>
 		 			<input type='submit' name='editabyss' class='ui-button ui-state-default ui-corner-all' value='".$L['edit']."'>");
+		 			
+		 		$this->table->add_row('Coordinate',"<div style='font-size:10px'>
+		 		X: <b>".$row['x']."</b> Y: <b>".$row['y']."</b> Z: <b>".$row['z']."</b></div>
+		 		<select name='cordinate'>
+		 		<option value='1'>Sanctum</option>
+		 		<option value='2'>Poeta</option>
+		 		<option value='3'>Verteron</option>
+		 		<option value='4'>Eltnen</option>
+		 		<option value='5'>Theobomos</option>
+		 		<option value='6'>Interdiktah</option>
+		 		<option value='7'>Pandaemonium</option>
+		 		<option value='8'>Ishalgen (Asmodian Starting Zone)</option>
+		 		<option value='9'>Altgard</option>
+		 		<option value='10'>Morheim</option>
+		 		<option value='11'>Brusthonin</option>
+		 		<option value='12'>Beluslan</option>
+		 		<option value='13'>Ereshuranta (Abyss)</option>
+		 		<option value='14'>No Zone Name</option>
+		 		<option value='15'>Karamatis</option>
+		 		<option value='16'>Karamatis 2</option>
+		 		<option value='17'>Aerdina (Abyss Gate)</option>
+		 		<option value='18'>Geranaia (Abyss Gate)</option>
+		 		<option value='19'>Lepharist (Bio Experiment Lab)</option>
+		 		<option value='20'>Fragment of Darkness</option>
+		 		<option value='21'>Fragment of Darkness 2</option>
+		 		<option value='22'>Sanctum Underground Arena</option>
+		 		<option value='23'>Indratu (Castle Indratu) </option>
+<option value='20'>Altgard</option>
+		 		</select>
+		 			<input type='submit' name='teleport' class='ui-button ui-state-default ui-corner-all' value='Move'>");
+		 				
 		 		return $content.$this->table->generate();
 		 	
 		 	} else return $L['charnotfound'];
@@ -1491,6 +1565,13 @@ JS;
 			WHERE 
 				itemUniqueId =$itemUniqueId;");
 		}	
+			$tmpl = array (
+                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" id="tablesorter">',
+                    'row_start'           => '<tr style="background:#E9E9E9">',
+                    'row_alt_start'       => '<tr style="background:#F8F8F8">',
+              );
+			$this->table->set_template($tmpl);	
+			
 			$result=$this->db->sql_query("SELECT name,account_name,account_id FROM players WHERE id='$char_id' LIMIT 1"); 
 			if ($this->db->sql_numrows($result) > 0) {
 					 list($name,$account_name,$account_id)=$this->db->sql_fetchrow($result);
@@ -1540,7 +1621,14 @@ JS;
 		include(CONF);
 		$L = & $this->lang;
 		$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
-		
+		$tmpl = array (
+                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" id="tablesorter">',
+                    'row_start'           => '<tr style="background:rgba(233,233,233,0.8)">',
+                    'row_alt_start'       => '<tr style="background:rgba(248,248,248,0.8)">',
+              );
+		$this->table->set_template($tmpl);	
+			
+			
 		if(isset($_GET['item'])){
 			$qitems=intval($_GET['item']);
 			$result=$this->db->sql_query("SELECT itemUniqueId,itemId,itemCount,isEquiped,slot FROM inventory WHERE itemUniqueId = $qitems");
@@ -1617,6 +1705,223 @@ JS;
 		}
 		
 		return 0;
+	}
+	
+	function world($id){
+		switch ($id) {
+		
+		//Sanctum - //moveto 110010000 1532 1511 565
+			case '1':
+				return(array('w'=>110010000,'x'=>1532,'y'=>1511,'z'=>565));
+				break;
+				
+		//Poeta - //moveto 210010000 526 1461 106		
+			case '2':
+				return(array('w'=>210010000,'x'=>526,'y'=>1461,'z'=>106));
+				break;
+				
+		//Verteron - //moveto 210030000 1339 2195 143		
+			case '3':
+				return(array('w'=>210030000,'x'=>1339,'y'=>2195,'z'=>143));
+				break;
+				
+		//Eltnen - //moveto 210020000 1487 1466 300		
+			case '4':
+				return(array('w'=>210020000,'x'=>1487,'y'=>1466,'z'=>300));
+				break;
+				
+		//Theobomos - //moveto 210060000 1400 1550 31		
+			case '5':
+				return(array('w'=>210060000,'x'=>1400,'y'=>1550,'z'=>31));
+				break;
+				
+		//Interdiktah - //moveto 210040000 1508 1568 112		
+			case '6':
+				return(array('w'=>210040000,'x'=>1508,'y'=>1568,'z'=>112));
+				break;
+				
+		//Pandaemonium - //moveto 120010000 1268 1428 208		
+			case '7':
+				return(array('w'=>120010000,'x'=>1268,'y'=>1428,'z'=>208));
+				break;
+				
+		//Ishalgen (Asmodian Starting Zone) - //moveto 220010000 850 2218 267
+			case '8':
+				return(array('w'=>220010000,'x'=>850,'y'=>2218,'z'=>267));
+				break;
+				
+		//Altgard - //moveto 220030000 1781 1930 261		
+			case '9':
+				return(array('w'=>220030000,'x'=>1781,'y'=>1930,'z'=>261));
+				break;
+				
+		//Morheim - //moveto 220020000 872 2180 337			
+			case '10':
+				return(array('w'=>220020000,'x'=>872,'y'=>2180,'z'=>337));
+				break;
+				
+		//Brusthonin - //moveto 220050000 2428 2298 13							
+			case '11':
+				return(array('w'=>220050000,'x'=>2428,'y'=>2298,'z'=>13));
+				break;	
+				
+		//Beluslan - //moveto 220040000 1967 2533 590		
+			case '12':
+				return(array('w'=>220040000,'x'=>1967,'y'=>2533,'z'=>590));
+				break;
+				
+		//Ereshuranta (Abyss) - //moveto 400010000 1365 1177 1516			
+			case '13':
+				return(array('w'=>400010000,'x'=>1365,'y'=>1177,'z'=>1516));
+				break;
+					
+		//No Zone Name - //moveto 300010000 225 276 206
+			case '14':
+				return(array('w'=>300010000,'x'=>225,'y'=>276,'z'=>206));
+				break;
+				
+		//Karamatis - //moveto 310010000 225 276 206		
+			case '15':
+				return(array('w'=>310010000,'x'=>225,'y'=>276,'z'=>206));
+				break;
+		
+		//Karamatis (not sure why there are two of these) - //moveto 310020000 225 276 206			
+			case '16':
+				return(array('w'=>310020000,'x'=>225,'y'=>276,'z'=>206));
+				break;
+				
+		//Aerdina (Abyss Gate) - //moveto 310030000 269 173 204			
+			case '17':
+				return(array('w'=>310030000,'x'=>269,'y'=>173,'z'=>204));
+				break;
+				
+		//Geranaia (Abyss Gate) - //moveto 310040000 269 173 204		
+			case '18':
+				return(array('w'=>310040000,'x'=>269,'y'=>173,'z'=>204));
+				break;
+				
+		//Lepharist (Bio Experiment Lab) - //moveto 310050000 191 324 125			
+			case '19':
+				return(array('w'=>310050000,'x'=>191,'y'=>324,'z'=>125));
+				break;	
+				
+		//Fragment of Darkness - //moveto 310060000 1618 782 1188		
+			case '20':
+				return(array('w'=>310060000,'x'=>1618,'y'=>782,'z'=>1188));
+				break;
+				
+		//Fragment of Darkness (not sure why there are two of these) - //moveto 310070000 83 238 1222		
+			case '21':	
+				return(array('w'=>310070000,'x'=>83,'y'=>238,'z'=>1222));
+				break;
+		
+		//Sanctum Underground Arena - //moveto 310080000 276 185 162		
+			case '22':	
+				return(array('w'=>310080000,'x'=>276,'y'=>185,'z'=>162));
+				break;
+		
+		//Indratu (Castle Indratu) - //moveto 310090000 560 335 1016		
+			case '23':	
+				return(array('w'=>310090000,'x'=>560,'y'=>335,'z'=>1016));
+				break;
+		
+		//Azoturan (Castle Lehpar) - //moveto 310100000 359 410 1537		
+			case '24':	
+				return(array('w'=>310100000,'x'=>359,'y'=>410,'z'=>1537));
+				break;
+		
+		//Narsass - //moveto 320010000 225 276 206		
+			case '25':	
+				return(array('w'=>320010000,'x'=>225,'y'=>276,'z'=>206));
+				break;
+				
+		//Narsass (not sure why there are two of these) - //moveto 320020000 225 276 206		
+			case '26':	
+				return(array('w'=>320020000,'x'=>225,'y'=>276,'z'=>206));
+				break;
+		
+		//Bregirun (Abyss Gate) - //moveto 320030000 269 175 204				
+			case '27':	
+				return(array('w'=>320030000,'x'=>269,'y'=>175,'z'=>204));
+				break;
+				
+		//Nidalber (Abyss Gate) - //moveto 320040000 269 175 204
+			case '28':	
+				return(array('w'=>320040000,'x'=>269,'y'=>175,'z'=>204));
+				break;	
+				/*
+		//Inside of the Sky Temple of Arkanis 320050000 128 133 575	
+		    case '29':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;
+		//Space of Oblivion - //moveto 320060000 1709 807 1226		
+			case '30':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;
+				
+		//Space of Destiny - //moveto 320070000 256 252 126		
+			case '31':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;
+		
+		//Draupnir - //moveto 320080000 493 600 513 (central control room)			
+			case '32':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;
+				
+		//Draupnir - //moveto 320080000 762 431 321 (beritra oracle chamber)			
+			case '33':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;
+				
+		//Triniel Underground Arena - //moveto 320090000 276 183 162			
+			case '34':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;	
+		
+		//Fire Temple - //moveto 320100000 148 455 142		
+			case '35':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;
+		
+		//Alquimia - //moveto 320110000 545 527 200	
+			case '36':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;
+				
+		//Secret Prison - //moveto 320120000 454 553 225			
+			case '37':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;	
+		
+		//Player Prison 1- //moveto 510010000 229 257 50		
+			case '38':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;
+				
+		//Player Prison 2- //moveto 520010000 229 257 50		
+			case '39':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;
+				
+		//Test Basic - //moveto 900020000 151 135 20							
+			case '40':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;
+				
+		//Test Server - //moveto 900030000 403 254 50			
+			case '41':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;	
+				
+		//Test Giant Monster - //moveto 900100000 245 323 20		
+			case '42':	
+				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				break;	*/											
+			default:
+				exit('teleport error');
+				break;
+		} 	
 	}
 // ------------------------------------------------------------------------
   	/*
