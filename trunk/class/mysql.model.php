@@ -1,11 +1,12 @@
 <?php
-/**
- * className
- *
- * class description
- * 
- * @author your name
- */
+/* ------------------------------------------------------------------------
+
+	Free CP for Aoin
+	beta version
+	Developer www.fdcore.ru
+	
+	http://code.google.com/p/aioncp/
+------------------------------------------------------------------------ */
 class aion
 {
 	static function login($login,$password){

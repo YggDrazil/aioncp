@@ -1,6 +1,12 @@
 <?php
-// ------------------------------------------------------------------------
-/*
+/* ------------------------------------------------------------------------
+
+	Free CP for Aoin
+	beta version
+	Developer www.fdcore.ru
+	
+	http://code.google.com/p/aioncp/
+	
 	DB Class From Slaed
 */
 class sql_db {
