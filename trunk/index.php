@@ -2,11 +2,12 @@
 session_start();
 /* ------------------------------------------------------------------------
 
-	CP for Aoin
-	version 0.4
-	www.fdcore.ru
+	Free CP for Aoin
+	beta version
+	Developer www.fdcore.ru
 	
-*/
+	http://code.google.com/p/aioncp/
+------------------------------------------------------------------------ */
 define('CONF', 'config.php');
 include('./class/core.php');
 define('START_TIME', microtime());
@@ -129,26 +130,24 @@ if (isset($_GET['action'])) {
 		</tr>
 
 <tr>
-	<td><div style='height:20px;'></div><?php if($cp->speedbar!==''){?><div id='speedbar'><?=$cp->speedbar;?></div><?php }?></td>
+	<td><div style='height:20px;'></div><?php if($cp->speedbar!==''){?><div id='speedbar'><?php echo $cp->speedbar;?></div><?php }?></td>
 </tr>
 
 <tr>
 	<td align="left"><form method='post'><?php echo $data?></form></td>
 </tr>	
-<tr>
-	<td align='left' style='font-size:10px;'>
-		<a href="http://lab.fdcore.ru" target="_blank" title='Touch me ;)'><img src='themes/i/F.png' alt='FDCore Studio'></a>
-		<a href="http://fdcore.ru/donate" targer="_blank" title="Сделать Добравольное пожертвование"><img src="themes/i/donate.png"></a>
-		<a href='?lang=ru'>RU</a> | 
-		<a href='?lang=en'>EN</a> |
-		Powered by HTML, <a href='http://php.net' target='_blank'>PHP</a>, XML, CSS 3, JS, SQL, 
-		<a href='http://jquery.com' target='_blank'>JQuery</a>, 
-		<a href="http://www.oxygen-icons.org/" target='_blank'>Oxygen</a>
-		</td>
-	</tr>
 </table>
 </div>
 <script type="text/javascript"><?php echo $cp->js?></script>
 <script type="text/javascript" src="themes/js/admincp.js"></script>
+
+
+<div style="font-size:10px; position:fixed; bottom:0px; right:0px;"><a href="http://lab.fdcore.ru" target="_blank" title='Touch me ;)'><img src='themes/i/F.png' alt='FDCore Studio'></a>
+		<a href="http://fdcore.ru/donate" targer="_blank" title="Сделать Добравольное пожертвование"><img src="themes/i/donate.png"></a>
+		<a href='?lang=ru'>RU</a> | 
+		<a href='?lang=en'>EN</a> |
+		<a href='javascript:void(0)' onclick="$('.foo').slideToggle('slow')">Powered by</a> <div class='hide foo'>HTML, <a href='http://php.net' target='_blank'>PHP</a>, XML, CSS 3, JS, <a href='http://mysql.org' target='_blank'>SQL</a>, 
+		<a href='http://jquery.com' target='_blank'>JQuery</a>, 
+		<a href="http://www.oxygen-icons.org/" target='_blank'>Oxygen</a></div></div>
 <!-- Copyright FDcore Studio | Powered by FDcore Labs -->
 </body></html>
