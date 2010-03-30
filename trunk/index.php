@@ -85,7 +85,7 @@ if (isset($_GET['action'])) {
 			<td><table>
 				<tr>
 			<td>
-				<div id='logo'><p><img src="themes/i/new_logo.png" alt='Logo'><br>AionCP 0.4</p></div>  
+				<div id='logo'><p><img src="themes/i/logo.png" alt='Logo'><br>AionCP 0.5</p></div>  
 					</td>          
 			<td><div id='hidetopmenu' class='hide'>
 				<div id='hiddenmenu'>
