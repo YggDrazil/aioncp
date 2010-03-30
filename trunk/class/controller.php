@@ -297,12 +297,10 @@ TEXT;
 			$return.=$this->action($_GET['action']);
 		} else {
 			if (isset($_SESSION['lang']) && $_SESSION['lang']=='en' && DEFAULT_LANG=='en') $return="Thank you for choosing our implementation 
-			of a control panel for game server Aion.<br>Now Current sponsor is:
-			<br><a href='http://pvpworld.ru'><img src='themes/i/sponsor.jpg'></a>
+			of a control panel for game server Aion.
 				<br>Donate: PayPal email sealnetsoul@gmail.com";
 				elseif (isset($_SESSION['lang']) && $_SESSION['lang']=='ru')
-			$return='<div>Спасибо что выбрали нашу разработку панели управления для игрового сервера Aion.<br>Наш текущий спонсор:
-			<br><a href="http://pvpworld.ru"><img src="themes/i/sponsor.jpg"></a></div>';
+			$return='<div>Спасибо что выбрали нашу разработку панели управления для игрового сервера Aion.</div>';
 		}
 		$this->logged=TRUE;
 		if (DEBUG) {
@@ -374,21 +372,26 @@ TEXT;
 	}
 // ------------------------------------------------------------------------ 		
 	function db_mssql_check_xss () {
-		$url = html_entity_decode(urldecode($_SERVER['QUERY_STRING']));
-		if ($url) {
-			if ((strpos($url, '<') !== false) ||
-				(strpos($url, '>') !== false) ||
-				(strpos($url, '"') !== false) ||
-				(strpos($url, '\'') !== false) ||
-				(strpos($url, './') !== false) ||
-				(strpos($url, '../') !== false) ||
-				(strpos($url, '--') !== false) ||
-				(strpos($url, '.php') !== false)
-			   )
-			{
-				die("Hacking attept!");
+	
+	if(isset($_SERVER['QUERY_STRING'])){
+	
+			$url = html_entity_decode(urldecode($_SERVER['QUERY_STRING']));
+			if ($url) {
+				if ((strpos($url, '<') !== false) ||
+					(strpos($url, '>') !== false) ||
+					(strpos($url, '"') !== false) ||
+					(strpos($url, '\'') !== false) ||
+					(strpos($url, './') !== false) ||
+					(strpos($url, '../') !== false) ||
+					(strpos($url, '--') !== false) ||
+					(strpos($url, '.php') !== false)
+				   )
+				{
+					die("Hacking attept!");
+				}
 			}
 		}
+	if(isset($_SERVER['REQUEST_URI'])){	
 		$url = html_entity_decode(urldecode($_SERVER['REQUEST_URI']));
 		if ($url) {
 			if ((strpos($url, '<') !== false) ||
@@ -400,7 +403,7 @@ TEXT;
 				die("Hacking attept!");
 			}
 		}
-	
+	 }
 	}
 	/*
 		Обработка глобального POST массива
