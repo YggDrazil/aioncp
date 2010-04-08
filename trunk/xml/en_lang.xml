@@ -97,4 +97,12 @@
 	<uniqn>Unique</uniqn>
 	<save>Save</save>
 	<erritem>Unknown item</erritem>
+	<connecttmysql>MySQL Connect is faild</connecttmysql>
+	<simplexml>SimpleXML Lib is not load!</simplexml>
+	<mysqlib>MySQL Lib is not load</mysqlib>
+	<memlim>Memory limit too short, change in php.ini</memlim>
+	<conls>Connect to Login DB is faild</conls>
+	<congs>Connect to Game DB  is faild</congs>
+	<acceptlic1>You accept the</acceptlic1>
+	<acceptlic2>license agreement?</acceptlic2>
 </lang>

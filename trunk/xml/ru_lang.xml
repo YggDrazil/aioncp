@@ -98,5 +98,12 @@
 	<uniqn>Уникальный номер</uniqn>
 	<save>Сохранить</save>
 	<erritem>Неизвестный предмет</erritem>
-
+	<connecttmysql>Соединение с MySQL  неудачно</connecttmysql>
+	<simplexml>Библиотека SimpleXML не загружена!</simplexml>
+	<mysqlib>Библиотека MySQL не загружена!</mysqlib>
+	<memlim>Лимит памяти слишком маленький, измените в php.ini</memlim>
+	<conls>Соединение в логин базой неудачно</conls>
+	<congs>Соединение с игровой базой неудачно</congs>
+	<acceptlic1>Вы принимаете</acceptlic1>
+	<acceptlic2>лицензионное соглашение?</acceptlic2>
 </lang>
