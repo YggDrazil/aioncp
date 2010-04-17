@@ -41,20 +41,17 @@ if (isset($_GET['lang'])) {
 /* ------------------------------------------------------------------------
 */
 $cp		=	new cpanel; // мну понелькО
-$cp->check_sql_inject();  // проверка POST
-$cp->db_mssql_check_xss(); // проверка GET 
-$data	=	$cp->index(); // главный контроллер
 /* ------------------------------------------------------------------------
 	Jquery Effect (chenged in core.php)
 */
 if (JS_EFFECT==FALSE) {
 	$cp->js="$.fx.off = !$.fx.off;".$cp->js;
 }
-/* ------------------------------------------------------------------------
-	CP Action 
-*/
-if (isset($_GET['action'])) {
-	$ACT=$_GET['action'];
-} else $ACT='';
-	$h='icon-spacer'; // выделенно
-	$unh='icon-no-spacer'; // не выделенно
+$cp->check_sql_inject();  // проверка POST
+$cp->db_mssql_check_xss(); // проверка GET 
+$cp->index(); // главный контроллер
+unset($cp);
+define("END_TIME",microtime());
+
+if(DEBUG==TRUE)
+	echo "load for ".(END_TIME-START_TIME);
