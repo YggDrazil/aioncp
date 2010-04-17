@@ -1,8 +1,8 @@
 <?php  
 /* ------------------------------------------------------------------------
 
-	Free CP for Aoin
-	beta version
+	CP for Aoin
+	version 1.0
 	Developer www.fdcore.ru
 	
 	http://code.google.com/p/aioncp/
@@ -10,34 +10,39 @@
 /**
  * Main controller class
  *
- * @package default
+ * @package aioncp
  * @author NetSoul
  */        
 define('VOID', 'javascript:void(0);');
 
 class cpanel
 {
-	private $table;
-	private $db;
-	public $js='';
-	public $title='';
-	public $logged=FALSE;
-	public $speedbar='';
-	public $lang=array();
-	private $time;
-	private $items='';
+	private $table; // table class
+	private $db; // database class
+	public $js=''; // javascript
+	public $title=''; // titles
+	public $logged=FALSE; // checking auth
+	public $speedbar=''; // speedbar for link
+	public $lang=array(); // current lang parsed from xml
+	private $items=''; //список предметов
 	private $connect_db='';
+	public $tpl; // квики шаблонизатор
 	
-	function __construct()
+	function cpanel()
 	{
-
-		$this->table=new Table;
-		$this->time=START_TIME;
+		$this->tpl		=	new Quicky;
+		$this->table	=	new Table;
+		
+		$this->tpl->template_dir = './themes/'; # Путь корневой папки с шаблонами
+		$this->tpl->compile_dir = './compiled/'; # Путь папки с компиляциями шаблонов
+		$this->tpl->cache_dir = './cache/'; # Путь до папки кеша.
 		$this->lang_init(); 
+		
 		if (!file_exists(CONF)) {
 			$this->install();
 			exit("File ".CONF." is not found.");
 		}
+
 	} 
 	/**
 	 * Install AdminCP
@@ -48,41 +53,22 @@ class cpanel
 	function install()
 	{  
 		if (!isset($_GET['l'])) {
-			echo $this->_header(); 
-			echo "<h2>Free AionCP [Installer]</h2>
-			<h3>Select Languages</h3>
-			<h2><a href='?l=en'>EN</a> | <a href='?l=ru'>RU</a></h2>
-			";
-			echo $this->_footer();     
-			exit();
+			$this->tpl->assign('step',1);
+			$this->tpl->display('install.tpl');  
+			exit(0);   
 		} 
 		$_SESSION['lang']=$_GET['l']; 
 		
 		$L = & $this->lang; 
-		// print_r($this->lang);                            
+                          
 		if (!isset($_GET['lic'])) {    
-			echo $this->_header();
-			
-			echo '<div style="text-align:left"><p>Copyright (c) 2010 FDCore Studio<br>
-		     All rights reserved.</p>
-
-		    <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
-
-		    <ul>
-		      <li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
-
-		      <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
-
-		      <li>Neither the name of the FDCore Studio nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</li>
-		    </ul>
-
-		    <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>   </div>
-			<hr>
-			<a href="?l='.$_GET['l'].'&lic=yes"><img src="themes/i/ok.png"></a> <a href="http://www.google.ru/search?client=safari&rls=en&q=buy+aion+admin+cp"><img src="themes/i/no.png"></a>';
-			echo $this->_footer();     
+		
+			$this->tpl->assign('step',2);
+			$this->tpl->display('install.tpl');  
 			exit();	
 		}
-		$errors=0;
+
+		$error=array();
 		if (
 			isset($_POST['host']) &&
 			isset($_POST['login']) &&
@@ -92,19 +78,19 @@ class cpanel
 			) {
 			$C=0;
 			if (!$r=@mysql_connect($_POST['host'],$_POST['login'],$_POST['password'])) {
-				$this->table->add_row('MySQL Connect',"<img src='themes/i/error.png' />");
+				$error[]=$L['connecttmysql'];
 				$C++;
-			} else $this->table->add_row('MySQL Connect',"<img src='themes/i/success.gif' />");
+			}
 
 			if (!$r=@mysql_select_db($_POST['ls'])) {
-				$this->table->add_row('Connect to Login DB',"<img src='themes/i/error.png' />");
+				$error[]=$L['conls'];
 				$C++;
-			} else $this->table->add_row('Connect to Login DB',"<img src='themes/i/success.gif' />");
+			}
 			
 			if (!$r=@mysql_select_db($_POST['gs'])) {
-				$this->table->add_row('Connect to Game DB',"<img src='themes/i/error.png' />");
+				$error[]=$L['congs'];
 				$C++;
-			} else $this->table->add_row('Connect to Game DB',"<img src='themes/i/success.gif' />");						
+			}						
 			if ($C==0) {
 $file="<?php
 \$db_host='".$_POST['host']."';
@@ -117,56 +103,18 @@ $file="<?php
 			}
 			
 		}
-	   	if (function_exists('simplexml_load_file'))
-	   		$this->table->add_row('Simplexml',"<img src='themes/i/success.gif' />");
-   		 else {
-   	 		$this->table->add_row('Simplexml',"<img src='themes/i/error.png' />");
-   	 		$errors++;
-   	 	}
- 	   	if (function_exists('mysql_connect'))
-	   		$this->table->add_row('MySQL',"<img src='themes/i/success.gif' />");
-   		 else {
-   	 		$this->table->add_row('MySQL',"<img src='themes/i/error.png' />");
-   	 		$errors++;
-   	 	}  	
-   	 	if ($errors==0) {
-   	 		$this->table->add_row($L['host'],"<input type='text' name='host'>");
-   	 		$this->table->add_row($L['login'],"<input type='text' name='login'>");
-   	 		$this->table->add_row($L['password'],"<input type='text' name='password'>");
-   	 		$this->table->add_row($L['ldb'],"<input type='text' name='ls'>");
-   	 		$this->table->add_row($L['gdb'],"<input type='text' name='gs'>");
-   	 		$this->table->add_row('',"<input type='submit' value='".$L['install']."'>");
-   	 	}
-		echo $this->_header(); 
-		echo "<form method='post'><h2><a href='index.php' >Free AionCP [Installer]</a></h2>".$this->table->generate()."</form>";  
-		echo $this->_footer();     
+		list($memory_limit) = sscanf(ini_get('memory_limit'), "%d");
+	   	if (!function_exists('simplexml_load_file')) 	$error[]=$L['simplexml'];
+ 	   	if (!function_exists('mysql_connect')) 			$error[]=$L['mysqlib'];
+ 	   	if (!function_exists('sqlite_open')) 			$error[]="No SQLite Lib";
+ 	   	if($memory_limit < 32) 							$error[]=$L['memlim'];
+ 	   	
+		$this->tpl->assign('error',$error);
+   		$this->tpl->assign('step',3);
+		$this->tpl->display('install.tpl');
 		exit();
 	}
-	
-	private function _header()
-	{
-$TEXT=<<<TEXT
-	 	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-			"http://www.w3.org/TR/html4/strict.dtd">
-		<html xmlns="http://www.w3.org/1999/xhtml" xmlns:php="http://php.net/xsl">
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>Setup Free Aion CP</title>
-		<link rel="stylesheet" href="themes/i/style.css" type="text/css">
-		<script type="text/javascript" src="themes/i/jquery-1.4.1.min.js"></script> 
-		</head><body>
-		<div align="center"> 
-TEXT;
-	return $TEXT;
-} 
-private function _footer()
-{
-	$TEXT=<<<TEXT
-		</div>
-		<!-- Copyright FDcore Studio | Powered by FDcore Labs -->
-		</body></html>
-TEXT;
-		return $TEXT;
-}
+
 // ------------------------------------------------------------------------
 	/*
 		Интернализация ? =)
@@ -176,17 +124,21 @@ TEXT;
 	
 			// составляем путь
 		if (isset($_SESSION['lang'])) {
-			$path =   "./xml/".$_SESSION['lang']."_lang.xml"; // основной файл языка
-			$cachepath="./cache/".$_SESSION['lang']."_lang.cache";// файш кеша
+			$path =   "./data/".$_SESSION['lang']."_lang.xml"; // основной файл языка
+			$md5_file=md5_file($path);
+			$cachepath="./cache/$md5_file.cache";// файш кеша
 		} else {
-			$path =  "./xml/".DEFAULT_LANG."_lang.xml";// основной файл языка
-			$cachepath="./cache/".DEFAULT_LANG."_lang.cache"; // файш кеша
+			$_SESSION['lang']=DEFAULT_LANG;
+			$path =  "./data/".DEFAULT_LANG."_lang.xml";// основной файл языка
+			$md5_file=md5_file($path);
+			$cachepath="./cache/$md5_file.cache"; // файш кеша
 		}
 		// проверка кеш файла
 		if(file_exists($cachepath)){
 			$temp=unserialize(file_get_contents($cachepath));
 			$this->lang=$temp;
 			unset($temp);
+			$this->tpl->assign('lang',$this->lang);
 			return;
 		}
 		
@@ -209,7 +161,7 @@ TEXT;
 
          	$this->lang[$key]=(string)$value[0];
          }
-         
+         $this->tpl->assign('lang',$this->lang);
          $temp=serialize($this->lang);
          file_put_contents($cachepath,$temp);
          unset($temp);
@@ -225,6 +177,7 @@ TEXT;
 	public function index()
 	{
 		if (isset($_SESSION['login']) && isset($_SESSION['token'])) {
+		
 			if ($_SESSION['token']=sha1($_SESSION['login'])) {  
 				return $this->main_form();
 			}
@@ -264,24 +217,21 @@ TEXT;
 		if (isset($_POST['login'])) {
 			$login		=	$this->secure($_POST['login']);
 			$password	=	$this->secure($_POST['password']);
-			if ($this->check_login($login,$password)) {
-				$_SESSION['login']=$login;
-				$_SESSION['token']=sha1($login);
-				header("location: index.php");
-				return;
-			} else {
-				$return='<div class="error_msg" onclick="$(this).hide(\'slow\')"><img src="themes/i/error.png">'.$this->lang['error_enter'].'</div>';
+
+			try{
+				if ($this->check_login($login,$password)) {
+					$_SESSION['login']=$login;
+					$_SESSION['token']=sha1($login);
+					header("location: index.php");
+					return;
+				} else {
+					$this->tpl->assign('error',$this->lang['error_enter']);
+				}
+			} catch (Exception $e) {
+					   $this->tpl->assign('error',$e->getMessage()); 
 			}
 		}
-		$tmpl = array ('table_open' => '<table border="0" align="center" class="main_form" cellpadding="1" cellspacing="0">');
-		
-		$this->table->set_template($tmpl);
-		$this->table->add_row($this->lang['login'],'<input name="login" type="text">');
-		$this->table->add_row($this->lang['password'],'<input name="password" type="password">');
-		
-		$this->table->add_row('','<input type="submit" value="'.$this->lang['enter'].'" class="button">');
-		
-		return $return.'<form method="post">'.$this->table->generate().'</form>';
+		$this->tpl->display('login.tpl');		
 	}
   /**
    * Main admin form 
@@ -292,31 +242,36 @@ TEXT;
 	private function main_form()
 	{
 		$return='';
-				
+	
 		if (isset($_GET['action'])) {
 			$return.=$this->action($_GET['action']);
 		} else {
-			if (isset($_SESSION['lang']) && $_SESSION['lang']=='en' && DEFAULT_LANG=='en') $return="Thank you for choosing our implementation 
+			if (isset($_SESSION['lang']) && $_SESSION['lang']=='en') $return="Thank you for choosing our implementation 
 			of a control panel for game server Aion.
 				<br>Donate: PayPal email sealnetsoul@gmail.com";
-				elseif (isset($_SESSION['lang']) && $_SESSION['lang']=='ru')
-			$return='<div>Спасибо что выбрали нашу разработку панели управления для игрового сервера Aion.</div>';
+				
+				else $return='<div>Спасибо что выбрали нашу разработку панели управления для игрового сервера Aion.<br>
+				Мы будем рады если вы пожертвуете немного денег на развитие </div>';
 		}
 		$this->logged=TRUE;
 		if (DEBUG) {
 			$alltime=microtime()-START_TIME;
-			$pattern="<div id='debug' onclick='\$(this).hide();'>Debug mode:<br>Queryes: %d<br>Time db: %s<br>All time: %s<hr>
+			$pattern="<div id='debug'>Debug mode:<br>Queryes: %d<br>Time db: %s<br>All time: %s<hr>
 			<textarea rows='10' cols='30'>POST ".var_export($_POST, 1)."</textarea>
 			</div>";
 			if(is_object($this->db))
 					$debug=sprintf($pattern,$this->db->num_queries,$this->db->total_time_db,$alltime);
 			else $debug='';
-				
-			return $return.$debug;
-		}		
-		
-		
-		return $return;
+			
+		} else $debug=FALSE;
+
+			$this->tpl->assign('debug',$debug);
+			$this->tpl->assign('text',$return);
+			$this->tpl->assign('title',$this->title);
+			$this->tpl->assign('speedbar',$this->speedbar);
+			$this->tpl->assign('js',$this->js);
+			$this->tpl->assign('bookmarks',$this->ajax());
+			$this->tpl->display('main.tpl');
 	}
 // ------------------------------------------------------------------------
 	/*
@@ -329,14 +284,19 @@ TEXT;
 		$result=$this->db->sql_query(aion::login($login,$password));
 		
 		if ($this->db->sql_numrows($result) > 0) {
+			list($access_level)=$this->db->sql_fetchrow($result);
+			if($access_level!==ALLOW_ACL) throw new Exception('Недостаточно прав у аккаунта');
 			return TRUE;
 		} else {
+			
 			return FALSE;
 		}
 	}
 // ------------------------------------------------------------------------
 	/*
 		clear string
+		@param raw string
+		@return cleared string
 	*/	
 	function secure($check_string)
 	{
@@ -372,26 +332,21 @@ TEXT;
 	}
 // ------------------------------------------------------------------------ 		
 	function db_mssql_check_xss () {
-	
-	if(isset($_SERVER['QUERY_STRING'])){
-	
-			$url = html_entity_decode(urldecode($_SERVER['QUERY_STRING']));
-			if ($url) {
-				if ((strpos($url, '<') !== false) ||
-					(strpos($url, '>') !== false) ||
-					(strpos($url, '"') !== false) ||
-					(strpos($url, '\'') !== false) ||
-					(strpos($url, './') !== false) ||
-					(strpos($url, '../') !== false) ||
-					(strpos($url, '--') !== false) ||
-					(strpos($url, '.php') !== false)
-				   )
-				{
-					die("Hacking attept!");
-				}
+		$url = html_entity_decode(urldecode($_SERVER['QUERY_STRING']));
+		if ($url) {
+			if ((strpos($url, '<') !== false) ||
+				(strpos($url, '>') !== false) ||
+				(strpos($url, '"') !== false) ||
+				(strpos($url, '\'') !== false) ||
+				(strpos($url, './') !== false) ||
+				(strpos($url, '../') !== false) ||
+				(strpos($url, '--') !== false) ||
+				(strpos($url, '.php') !== false)
+			   )
+			{
+				die("Hacking attept!");
 			}
 		}
-	if(isset($_SERVER['REQUEST_URI'])){	
 		$url = html_entity_decode(urldecode($_SERVER['REQUEST_URI']));
 		if ($url) {
 			if ((strpos($url, '<') !== false) ||
@@ -403,7 +358,7 @@ TEXT;
 				die("Hacking attept!");
 			}
 		}
-	 }
+	
 	}
 	/*
 		Обработка глобального POST массива
@@ -411,8 +366,7 @@ TEXT;
 	*/
 	 function check_sql_inject() 
 	  { 
-	    $badchars = array("--","truncate","tbl_","exec",	";","'","*","/"," \ ","drop",
-	    	"select","update","delete","where"); 
+	    $badchars = array("--","truncate","tbl_","exec",";","'","*","/"," \ ","drop","delete","where"); 
 	    foreach($_POST as $value) 
 	    { 
 		    foreach($badchars as $bad) 
@@ -441,6 +395,7 @@ TEXT;
   				header("location: index.php");
   				return;
   				break;
+  				
   			case 'accounts':
   				return $this->accounts_list();
   				break;	
@@ -479,10 +434,23 @@ TEXT;
 			case 'edititem':
 				return $this->edititem();  
 				break;
+				
 			case 'chardata':
 				return $this->chardata();
 				break;
-									 							
+				
+			case 'favarites':
+				return $this->favarites();
+				break;	
+				
+			case 'construct':
+				return $this->construct();
+				break;	
+				
+			case 'config':
+				return $this->config();
+				break;				
+																 							
   			default:
   				return 'not action';
   				break;
@@ -503,7 +471,8 @@ TEXT;
 			$this->connect_db='gs';
 		}
 		$this->table->clear();
-$this->js=<<<JS
+		
+$this->js.=<<<JS
 \$('#chkey').keyup(function(){
 	  var char;
 	  char=\$('#chkey').val();
@@ -511,20 +480,21 @@ $this->js=<<<JS
 	  return false;
 });
 JS;
+		// проверка наличия кеша
 		if(file_exists("./cache/account_chars.cache")){
 			$this->speedbar=file_get_contents("./cache/account_chars.cache");
 		} else {
 			$chars=range('a','z');
 			foreach ($chars as $key => $value) {
-				$chars[$key]="<a href='?action=accounts&C=$value' onclick=\"ajax_chars('$value');return false;\">$value</a> ";
+				$chars[$key]="<a href='?action=accounts&C=$value' class='butPage' onclick=\"ajax_chars('$value');return false;\">$value</a> ";
 			}
-			$chars[]="<a href='?action=accounts' onclick=\"ajax_chars('');return false;\">".$L['all']."</a> <input type='text' id='chkey' name='char' maxlength='1' style='width:10px'>";
-			$sp="<strong>".$this->table->generate($chars).'</strong>';
+			$chars[]="<a href='?action=accounts' class='butPage' onclick=\"ajax_chars('');return false;\">".$L['all']."</a> <input type='text' id='chkey' name='char' maxlength='1' style='width:10px'>";
+			$sp=implode('&nbsp;',$chars);
+			// запись в кеш
 			file_put_contents("./cache/account_chars.cache",$sp);
 			$this->speedbar=$sp;
 		}
 
-		$this->table->clear();
 		$this->table->set_heading($L['account'],$L['char']);
 		
 		//------------- QUERY BUILD----------------//
@@ -536,7 +506,7 @@ JS;
 			$result=$this->db->sql_query("SELECT name,account_name,account_id FROM `players` LIMIT 0 , 30");
 		}
 			$tmpl = array (
-                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" id="tablesorter">',
+                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" class="uiTable">',
                     'row_start'           => '<tr style="background:#E9E9E9">',
                     'row_alt_start'       => '<tr style="background:#F8F8F8">',
               );
@@ -550,15 +520,14 @@ JS;
 			}
 		}
 		if (isset($_GET['ajax'])) exit($this->table->generate());
-		/*
-			TODO сделать кастомное поле для ввода символа
-		*/
 		$return.="<div id='ajax'>".$this->table->generate()."</div>";
 		return $return;
   	}
 // ------------------------------------------------------------------------
   	/*
   		Edit Account
+  		
+  		account.tpl
   	*/  	
   	function account()
   	{
@@ -572,9 +541,12 @@ JS;
 		}
 		if (isset($_GET['char'])) {
 			$char=intval($this->secure($_GET['char']));
-			$this->table->clear();
-			$message='';
+			$message=array(); // информативные сообщения
+			
 			// POST data start
+			/*------------------------------------------------
+				изменение данных аккаунта
+			------------------------------------------------*/
 			if (isset($_POST['name'])) {
 				$result=$this->db->sql_query("SELECT name,password,access_level,email FROM account_data WHERE id='$char'");
 				$row=$this->db->sql_fetchrow($result);
@@ -590,14 +562,14 @@ JS;
 					if (base64_encode(sha1($password,true))!==$row['password']) {
 						$password=base64_encode(sha1($password,true));
 						$this->db->sql_query("UPDATE account_data SET password = '$password' WHERE id=$char LIMIT 1;");
-						$message.='<div class="succes_msg"><img src="themes/i/success.gif">'.$L['pass_changed'].'</div>';
+						$message[]=$L['pass_changed'];
 					}
 				}
 				//----------------- access_level
 				if (isset($_POST['access_level']) && $_POST['access_level']!==$row['access_level']) {
 					$access_level	=	intval($this->secure($_POST['access_level']));
 					$this->db->sql_query("UPDATE account_data SET access_level = '$access_level' WHERE id=$char LIMIT 1;");
-					$message.='<div class="succes_msg"><img src="themes/i/success.gif">'.$L['acl_change'].'</div>';
+					$message[]=$L['acl_change'];
 				}
 				
 				
@@ -609,14 +581,14 @@ JS;
 					$db_gs	=new sql_db($db_host, $db_login, $db_password, $db_game_server);			
 					$db_gs->sql_query("UPDATE players SET account_name = '$name' WHERE account_id=$char LIMIT 1;");	
 					unset($db_gs);
-					$message.='<div class="succes_msg"><img src="themes/i/success.gif">'.$L['login_ch'].'</div>';
+					$message[]=$L['login_ch'];
 				}
 				//----------------- email
 				$email	=$this->secure($_POST['email']);
 				
 				if ($email!==$row['email']) {
 					$this->db->sql_query("UPDATE account_data SET email = '$email' WHERE id=$char LIMIT 1;");
-					$message.='<div class="succes_msg"><img src="themes/i/success.gif">'.$L['email_ch'].'</div>';
+					$message[]=$L['email_ch'];
 				}
 				if($this->connect_db!=='ls'){		
 					include(CONF);		
@@ -624,47 +596,32 @@ JS;
 					$this->connect_db='ls';
 				}
 			}
-			// POST data end
-			$tmpl = array (
-                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" id="tablesorter">',
-                    'row_start'           => '<tr style="background:#E9E9E9">',
-                    'row_alt_start'       => '<tr style="background:#F8F8F8">',
-              );
-			$this->table->set_template($tmpl);				
-			$result=$this->db->sql_query("SELECT id,name,password,activated,access_level,email,last_ip,ip_force FROM account_data WHERE id=$char");
+			// POST data end		
+			/*------------------------------------------------
+					показ данных аккаунта
+			------------------------------------------------*/	
+			$result=$this->db->sql_query("SELECT * FROM account_data WHERE id=$char");
 			if ($this->db->sql_numrows($result) > 0) {
 				$row=$this->db->sql_fetchrow($result);
 				
 				if ($row['activated']=='1') {
 					$ACTIV='checked';
 				} else $ACTIV='';
-				$this->title.=$row['name'];
-				$FAV="<a href='".VOID."' onclick=\"add_bookmark('%s','%s');\$(this).fadeOut('slow')\" title='".$L['addbookm']."'><img src='themes/i/bookmark_add.png' title='".$L['addbookm']."'></a>"; 
-				$this->table->add_row($L['login'],
-						'<input type="text" name="name" value="'.$row['name'].'">'.sprintf($FAV,$row['id'],$row['name']));  
-						
-				$this->table->add_row($L['password'],'<input type="text" name="password">');
-				$this->table->add_row($L['active'],'<input type="checkbox" '.$ACTIV.' name="activated" value="1">');
-				$this->table->add_row($L['acl'],'<input type="text" name="access_level" value="'.$row['access_level'].'">');
-				$this->table->add_row($L['email'],'<input type="text" name="email" value="'.$row['email'].'">');
-				$this->table->add_row($L['last_ip'],($row['last_ip']=='')?$L['none']:$row['last_ip']);
+				 $this->speedbar="<p><a href='?action=info&char=".$row['id']."'>".$row['name']."</a> &rarr; ".$row['id']."</p>";
 				
-				$r="<form metdod='post'>".$message.$this->table->generate().'<input type="submit" value="'.$L['edit'].'"></form>';
+				$this->tpl->assign('message',$message);
+				$this->tpl->assign('active',$ACTIV);
+				$this->tpl->assign('row',$row);
+				$this->title.=$row['name'];
+
+				
+				$ch=$this->my_chars(intval($_GET['char']));
+				$this->tpl->assign('char_list',$ch);
 				
 				if ($ch=$this->my_chars(intval($_GET['char']))) {
-					$list='<h2><a href="'.VOID.'" 
-						onclick="$(\'#chars\').slideToggle(500)" 
-					    title="'.$L['clickme'].'">'.$L['acc_char'].'</a>
-					</h2><ul id="chars" class="hide list_none">';
-					
-					foreach ($ch as $key => $value) {
-						$ajax="<a href='".VOID."' onclick=\"ajax_char('$key','#ajax_$key');\" title='".$L['preload']."'><img src='themes/i/info.png'></a>";
-						$list.="<li><h3><a href='?action=char&char_id=$key'>$value</a>&nbsp;&nbsp;$ajax<div id='ajax_$key' class='hide'></div></h3></li>";
-					}
-					$list.='</ul>';
 					$r.=$list;
 				} else $r.="<p>".$L['no_char']."</p>";
-				return $r;
+				return $this->tpl->fetch('account.tpl');
 				
 			}
 			return $L['acc_nf'];
@@ -674,7 +631,7 @@ JS;
   	}
 // ------------------------------------------------------------------------
   	/*
-  		Срёт массивом персов акка
+  		@return Array  chars from account
   	*/  	
 	function my_chars($account_id='')
 	{
@@ -704,7 +661,8 @@ JS;
 	}
 // ------------------------------------------------------------------------
   	/*
-  		Статистика
+  		Статистика версия 1.0
+  		
   	*/  	
   	private function statistic()
   	{
@@ -724,49 +682,100 @@ JS;
 		$this->table->set_template($tmpl);	
 		
 			
-  		$this->speedbar="<a href='".VOID."' 
-  		onclick=\"$('#text').slideToggle('slow');return false;\">".$L['text']."</a> | 
-  			<a href='".VOID."' 
-  		onclick=\"$('#chart').slideToggle('slow');\">".$L['graph']."</a>";
-  		$result=$this->db->sql_query("SELECT COUNT(*) as count FROM `account_data` WHERE activated=1");
-  		list($count_active)=$this->db->sql_fetchrow($result);
-  		$this->table->add_row($L['stat_act'],$this->b($count_active));
+  		$this->speedbar="
+  		<a href='?action=statistic&type=total' class='butPage'>".$L['statdata']."</a>
+  		<a href='?action=statistic&type=graph' class='butPage'>".$L['graph']."</a>
+  		<a href='?action=statistic&type=online' class='butPage'>".$L['online']."</a>
+  		<a href='?action=statistic&type=abyss' class='butPage'>".$L['topabyss']."</a>
+  		";
   		
-  		$result=$this->db->sql_query("SELECT COUNT(*) as count FROM `account_data` WHERE activated=0");
-  		list($count_unactive)=$this->db->sql_fetchrow($result); 
-  		$this->table->add_row($L['stat_unact'],$this->b($count_unactive));
+  		if(isset($_GET['type'])){
+  			$t=$_GET['type'];
+  		} else $t='total';
+  			
+  			if($t=='online'){
+  				include(CONF);
+	  			$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
+  				$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players` WHERE  online='1'");
+  				list($count_online)=$this->db->sql_fetchrow($result);
+	  			$this->table->add_row($L['online'],$this->b($count_online));
+	  			 $result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players` WHERE  online='0'");
+  				list($count_offline)=$this->db->sql_fetchrow($result);
+	  			$this->table->add_row($L['offline'],$this->b($count_offline));
+	  			$gapi1=$this->chart("$count_online,$count_offline",
+	  				sprintf($L['onoff'],$count_online,$count_offline),$L['curronline']);
+	  			$this->table->add_row($gapi1);
+	  			//TODO вывести список персонажей с листингом
+	  			
+  			}
   		
-  		$result=$this->db->sql_query("SELECT COUNT(*) as count FROM `account_data`");
-  		list($count_all)=$this->db->sql_fetchrow($result); 	
-  		$this->table->add_row($L['stat_allacc'],$this->b($count_all));	
-  		
-  		include(CONF);
-  		$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
-  		
-  		$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players` WHERE  `gender` =  'MALE'");
-  		list($CountMalePlayers)=$this->db->sql_fetchrow($result);
-  		$this->table->add_row($L['stat_male'],$this->b($CountMalePlayers));
-  		  		
-   		$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players` WHERE  `gender` =  'FEMALE'");
-  		list($CountFemalePlayers)=$this->db->sql_fetchrow($result);
-  		$this->table->add_row($L['stat_fam'],$this->b($CountFemalePlayers));
-
-   		$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players`");
-  		list($CountAllPlayers)=$this->db->sql_fetchrow($result);
-  		$this->table->add_row($L['stat_allch'],$this->b($CountAllPlayers));  
-  		
-  		$gapi1=$this->chart("$count_active,$count_unactive",sprintf($L['actdeac'],$count_active,$count_unactive),$L['accounts']);
-  		$gapi2=$this->chart("$CountMalePlayers,$CountFemalePlayers",sprintf($L['sexchart'],$CountMalePlayers,$CountFemalePlayers),$L['sex']);
-  		
-  		$texts="<div id='text'>".$this->table->generate()."</div>";
-  		$this->table->clear();
-  		
-  		$this->table->add_row($gapi1,$gapi2);
- 
-  		$chart="<div id='chart' style='display:none'>".$this->table->generate()."</div>";
-  		
-  		
-  		return $texts.$chart;
+  			if($t=='total'){
+	  	  		$result=$this->db->sql_query("SELECT COUNT(*) as count FROM `account_data` WHERE activated=1");
+		  		list($count_active)=$this->db->sql_fetchrow($result);
+		  		$this->table->add_row($L['stat_act'],$this->b($count_active));
+		  		
+		  		$result=$this->db->sql_query("SELECT COUNT(*) as count FROM `account_data` WHERE activated=0");
+		  		list($count_unactive)=$this->db->sql_fetchrow($result); 
+		  		$this->table->add_row($L['stat_unact'],$this->b($count_unactive));
+		  		
+		  		$result=$this->db->sql_query("SELECT COUNT(*) as count FROM `account_data`");
+		  		list($count_all)=$this->db->sql_fetchrow($result); 	
+		  		$this->table->add_row($L['stat_allacc'],$this->b($count_all));	
+		  		
+		  		include(CONF);
+		  		$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
+		  	
+		  		$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players` WHERE  `gender` =  'MALE'");
+		  		list($CountMalePlayers)=$this->db->sql_fetchrow($result);
+		  		$this->table->add_row($L['stat_male'],$this->b($CountMalePlayers));
+		  		  		
+		   		$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players` WHERE  `gender` =  'FEMALE'");
+		  		list($CountFemalePlayers)=$this->db->sql_fetchrow($result);
+		  		$this->table->add_row($L['stat_fam'],$this->b($CountFemalePlayers));
+		
+		   		$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players`");
+		  		list($CountAllPlayers)=$this->db->sql_fetchrow($result);
+		  		$this->table->add_row($L['stat_allch'],$this->b($CountAllPlayers));  			
+  			}//total
+  			
+  			if($t=='graph'){
+  				$result=$this->db->sql_query("SELECT COUNT(*) as count FROM `account_data` WHERE activated=1");
+		  		list($count_active)=$this->db->sql_fetchrow($result);
+		  		
+		  		$result=$this->db->sql_query("SELECT COUNT(*) as count FROM `account_data` WHERE activated=0");
+		  		list($count_unactive)=$this->db->sql_fetchrow($result); 
+		  		
+		  		$result=$this->db->sql_query("SELECT COUNT(*) as count FROM `account_data`");
+		  		list($count_all)=$this->db->sql_fetchrow($result); 	
+		  		
+		  		include(CONF);
+		  		$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
+		  	
+		  		$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players` WHERE  `gender` =  'MALE'");
+		  		list($CountMalePlayers)=$this->db->sql_fetchrow($result);
+		  		  		
+		   		$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players` WHERE  `gender` =  'FEMALE'");
+		  		list($CountFemalePlayers)=$this->db->sql_fetchrow($result);
+		
+		   		$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players`");
+		  		list($CountAllPlayers)=$this->db->sql_fetchrow($result);
+  				$gapi1=$this->chart("$count_active,$count_unactive",sprintf($L['actdeac'],$count_active,$count_unactive),$L['accounts']);
+	  			$gapi2=$this->chart("$CountMalePlayers,$CountFemalePlayers",sprintf($L['sexchart'],$CountMalePlayers,$CountFemalePlayers),$L['sex']);
+  				$this->table->add_row($gapi1);
+	 			$this->table->add_row($gapi2);
+  			}//graph
+  			
+  			if($t=='abyss'){
+  				include(CONF);
+		  		$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
+  				$result=$this->db->sql_query(aion::stat_abyss());
+  				$this->table->set_heading($L['char_name'],$L['abyss']);
+  				while(list($name,$abyss,$id)=mysql_fetch_array($result)){
+  					$this->table->add_row("<a href='index.php?action=char&char_id=$id'>$name</a>",$abyss);
+  				}
+  				
+  			}
+  		return $this->table->generate();
   	}
 // ------------------------------------------------------------------------
   	/*
@@ -788,20 +797,31 @@ JS;
   	}
 // ------------------------------------------------------------------------
   	/*
-  		а вот и Чар нах 
+  		Character informations
+  		tpl: character_info.tpl
   	*/  	
   	private function char()
   	{	
 		$L = & $this->lang;
 		$content='';
+		// Connect to db
 		if($this->connect_db!=='gs'){
 			include(CONF);
 			$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
 			$this->connect_db='gs';	
 		}
-		if (isset($_GET['char_id']) || isset($_GET['char_name'])) { 
+		// 
+		if (isset($_GET['char_id']) || isset($_GET['char_name'])) {
+		 
+			// edit data!
 			 if (isset($_POST['name'])) {     
-				$upname=$this->secure($_POST['name']);      
+			 // GET POST DATA
+				$upname		=	$this->secure($_POST['name']);  
+				$gender		=	$this->secure($_POST['gender']);
+				$race		=	$this->secure($_POST['race']); 
+				$player_class=$this->secure($_POST['player_class']); 
+				
+				    
 				if(isset($_GET['char_id'])){
 					 $char_id=intval($_GET['char_id']); 
 					 $WHERE="id='$char_id'";
@@ -811,24 +831,27 @@ JS;
 					$WHERE="name='$name'";
 				}
 
-			 	$this->db->sql_query("UPDATE players SET name='$upname' WHERE $WHERE LIMIT 1");  
+			 	if($upname!=='' && $gender!=='' && $race!=='' && $player_class!=='') 
+			 		$this->db->sql_query(aion::players_update($upname,$gender,$race,$player_class,$WHERE)); 
+			 	 
 			  if (isset($_GET['char_name'])) {  
 				 header("location: ?action=char&char_name=$upname"); 
 				 exit();
 				}
-			  $content.="<div id='informer' onclick=\"$(this).slideUp('slow')\">".$L['charnamech']."$upname.</div>";
 			 }                                                                        
+			// END edit name
 			
 			// передан id
 			if (isset($_GET['char_id'])){
 				$char_id=intval($_GET['char_id']);
-				$result=$this->db->sql_query("SELECT * FROM players WHERE id='$char_id' LIMIT 1");	
+				$result=$this->db->sql_query(aion::players_id($char_id));	
 			}
 			// передан ник
 			if (isset($_GET['char_name'])) {
 				$name=$this->secure($_GET['char_name']);
-				$result=$this->db->sql_query("SELECT * FROM players WHERE name='$name' LIMIT 1");
+				$result=$this->db->sql_query(aion::players_name($name));
 			}
+			
 			// высераем данные
 if (isset($_GET['ajax']))  { $js=<<<JS
 <script type="text/javascript">
@@ -838,76 +861,36 @@ function destroy_div(target){
 </script>
 JS;
 echo $js;
-}           
-$this->js=<<<JS
-$("#chname").focus(
-      function () {
-        $(".editbtn1").fadeIn('slow');
-      }, 
-      function () {
-        $(".editbtn1").fadeOut('slow');
-      }
-    ); 
-$("#chname").blur(
-		  function () {
-		     $(".editbtn1").fadeOut('slow');  
-		  });                
-		
-$(".class_edit").click(function(){ 
-	var class_text=$(".class_edit").text();
-	 $(".class_edit").html("<input type='text' value='"+class_text+"'>");
-});		                 
-JS;
-
-			$tmpl = array (
-                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" id="tablesorter">',
-                    'row_start'           => '<tr style="background:#E9E9E9">',
-                    'row_alt_start'       => '<tr style="background:#F8F8F8">',
-              );
-			$this->table->set_template($tmpl);	
-			
+}       
+/*------------------------------------------------
+	Вывод данных  	
+------------------------------------------------*/  
 			if ($this->db->sql_numrows($result) > 0) {   
 				$row=$this->db->sql_fetchrow($result);
-				$this->table->add_row('id',	$row['id']);
-				if (isset($_GET['ajax'])){
-					$this->table->add_row($L['name'],$row['name']);
-				} else {
-					$this->table->add_row($L['name'],"<input type='text' name='name' id='chname' value='".$row['name']."'>
-				<input type='submit' value='".$L['edit']."' class='hide editbtn1'>");  
-				}    
-				/*
-					TODO multi lang
-				*/
-				$this->table->add_row($L['login'],"<a href='?action=info&char=".$row['account_id']."' title='Open Account'>".$row['account_name'].'</a>'); 
-				/*
-					TODO edit class and other
-				*/
-				if (isset($_GET['ajax'])) $EDIT=''; else $EDIT="<a href='".VOID."' onclick=\"alert('Данная функция будет доступна позже.')\" title='Изменить'><img src='themes/i/edit.png'  title='Изменить'></a>";
+				$this->title=$L['charinfo'].$row['name'];
+				 $this->speedbar="<p><a href='?action=info&char=".$row['account_id']."'>
+				 ".$row['account_name']."</a> &rarr; <a href='?action=char&char_name=".$row['name']."'>
+				 ".$row['name']."</a> &rarr; ".$row['id']."</p>";
+				 
+				$this->tpl->assign('row',$row);
+				$this->tpl->assign('level',$this->get_level($row['exp']));  
 				
 				if($this->is_online($row['id'])){
-		 			$this->table->add_row('Статус','<font color="lime">Online</font> <img src="themes/i/error.png">');
+					$this->tpl->assign('online',TRUE);
 		 		} else{
-		 			$this->table->add_row('Статус','<font color="red">Offline</font> <img src="themes/i/success.gif">');
+		 			$this->tpl->assign('online',FALSE);
 		 		}
-				$this->table->add_row($L['class'],	$row['player_class'].$EDIT);
-				$this->table->add_row($L['race'],	$row['race'].$EDIT);
-				$this->table->add_row($L['create'],	$row['creation_date']);
-				$this->table->add_row($L['lastexit'],$row['last_online']);
-				$this->table->add_row($L['level'],	$this->get_level($row['exp']));
+		 		
+				$this->tpl->assign('ajax',(bool)isset($_GET['ajax']));
+				
 				if (isset($_GET['ajax'])) {
-					exit($content.$this->table->generate().
+					exit($content.$this->tpl->fetch('character_info.tpl').
 					"<a href='".VOID."' 
-						onclick=\"destroy_div('#ajax_{$row['id']}');\" title='".$L['close']."'>
+						onclick=\"destroy_div('#AjaxPlace');\" title='".$L['close']."'>
 					<img src='themes/i/dialog_close.png'></a>");
 				}
-				if (!isset($_GET['ajax'])){
-					$menu='<hr>
-					<p><a href="?action=items&char_id='.$row['id'].'">'.$L['inven'].'</a></p>
-					<p><a href="?action=chardata&char_id='.$row['id'].'">'.$L['char_data'].'</a></p>
-					<p><a href="#?action=extra&func=delete_char&char_id='.$row['id'].'">'.$L['delchar'].'</a></p>
-					';
-				} else $menu='';
-				return $content.$this->table->generate().$menu;
+
+				return $this->tpl->fetch('character_info.tpl');
 			} else {
 				return $L['char_datanotf'];
 			}
@@ -924,7 +907,7 @@ JS;
 		 
 		 $L = & $this->lang;
 		 $content='';
-		 
+		 $this->title=$L['char_data'];
 		 if($this->connect_db!=='gs'){
 		 	 include(CONF);
 			 $this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server); 
@@ -935,7 +918,7 @@ JS;
 			$char_id=intval($_GET['char_id']);
 			$abyss=intval($_POST['abyss']);
 			$this->db->sql_query("UPDATE abyss_rank SET ap = $abyss WHERE player_id = $char_id LIMIT 1");
-			$content.="<div class='info_msg'>".sprintf($L['abysschange'],$abyss)."</div>";
+			$this->tpl->assign('message',sprintf($L['abysschange'],$abyss));
 		}
 		// изменение уровня персонажа
 		if(isset($_POST['editlevel']) && isset($_GET['char_id']))	
@@ -943,7 +926,7 @@ JS;
 			$char_id=intval($_GET['char_id']);
 			$level=intval($_POST['level']);
 			$this->db->sql_query("UPDATE players SET exp = $level WHERE id = $char_id LIMIT 1");
-			$content.="<div class='info_msg'>".$L['levelchange']."</div>";			
+			$this->tpl->assign('message',$L['levelchange']);			
 		}
 		// телепортирование
 		if (isset($_POST['teleport']) && isset($_GET['char_id'])) {
@@ -956,7 +939,7 @@ JS;
 				y = ".$C['y'].",
 				z = ".$C['z']."
 				WHERE id = $char_id LIMIT 1");
-			$content.="<div class='info_msg'>Телепортирован!</div>";	
+			$this->tpl->assign('message',$L['teleported']);	
 		}
 		 // передан id
 		 if (isset($_GET['char_id'])){
@@ -977,6 +960,8 @@ JS;
 			 	file_put_contents('./cache/level.cache',$ll);
 		 	}
 		 	
+		 	$this->tpl->assign('LevelList',$ll);
+		 	
 		 	$char_id=intval($_GET['char_id']);
 		 	$result=$this->db->sql_query("SELECT * FROM players WHERE id='$char_id' LIMIT 1");
 		 // проверка 		
@@ -984,57 +969,15 @@ JS;
 		 	// парсинг
 		 		$row=$this->db->sql_fetchrow($result);
 		 		$this->speedbar="<p><a href='?action=info&char=".$row['account_id']."'>".$row['account_name']."</a> &rarr; <a href='?action=char&char_name=".$row['name']."'>".$row['name']."</a> &rarr; $char_id</p>";
-		 		if($this->is_online($char_id)){
-		 			$this->table->add_row('Статус','<font color="lime">Online</font> <img src="themes/i/error.png">');
-		 		} else{
-		 			$this->table->add_row('Статус','<font color="red">Offline</font> <img src="themes/i/success.gif">');
-		 		}
 		 		
-		 		$this->table->add_row($L['level'],$this->get_level($row['exp'])."
-		 		<a href='".VOID."' onclick=\"$('.chlevel').toggle('slow')\" title='".$L['edit']."'>
-		 			<img src='themes/i/edit.png' title='".$L['edit']."'></a>
 		 		
-		 		<div class='chlevel hide'>EXP:<input type='text' class='level' name='level' value='".$row['exp']."'>
-		 				<input type='submit' name='editlevel' class='ui-button ui-state-default ui-corner-all' value='".$L['edit']."'>
-		 			<a href='".VOID."' onclick=\"$('.ll').slideToggle('slow')\"><img src='themes/i/wizard.png'></a>
-		 			<div class='ll hide'>$ll</div>
-		 		</div>");
+		 		if($this->is_online($char_id)) $this->tpl->assign('online',TRUE);
+		 			else $this->tpl->assign('online',FALSE);
 		 		
-		 		$this->table->add_row($L['abyss'],"<input type='text' name='abyss' value='".$this->abyss($char_id)."'>
-		 			<input type='submit' name='editabyss' class='ui-button ui-state-default ui-corner-all' value='".$L['edit']."'>");
-		 			
-		 		$this->table->add_row('Coordinate',"<div style='font-size:10px'>
-		 		X: <b>".$row['x']."</b> Y: <b>".$row['y']."</b> Z: <b>".$row['z']."</b></div>
-		 		<select name='cordinate'>
-		 		<option value='1'>Sanctum</option>
-		 		<option value='2'>Poeta</option>
-		 		<option value='3'>Verteron</option>
-		 		<option value='4'>Eltnen</option>
-		 		<option value='5'>Theobomos</option>
-		 		<option value='6'>Interdiktah</option>
-		 		<option value='7'>Pandaemonium</option>
-		 		<option value='8'>Ishalgen (Asmodian Starting Zone)</option>
-		 		<option value='9'>Altgard</option>
-		 		<option value='10'>Morheim</option>
-		 		<option value='11'>Brusthonin</option>
-		 		<option value='12'>Beluslan</option>
-		 		<option value='13'>Ereshuranta (Abyss)</option>
-		 		<option value='14'>No Zone Name</option>
-		 		<option value='15'>Karamatis</option>
-		 		<option value='16'>Karamatis 2</option>
-		 		<option value='17'>Aerdina (Abyss Gate)</option>
-		 		<option value='18'>Geranaia (Abyss Gate)</option>
-		 		<option value='19'>Lepharist (Bio Experiment Lab)</option>
-		 		<option value='20'>Fragment of Darkness</option>
-		 		<option value='21'>Fragment of Darkness 2</option>
-		 		<option value='22'>Sanctum Underground Arena</option>
-		 		<option value='23'>Indratu (Castle Indratu) </option>
-<option value='20'>Altgard</option>
-		 		</select>
-		 			<input type='submit' name='teleport' class='ui-button ui-state-default ui-corner-all' value='Move'>");
-		 				
-		 		return $content.$this->table->generate();
-		 	
+		 		$this->tpl->assign('level',$this->get_level($row['exp']));
+		 		$this->tpl->assign('abyss',$this->abyss($char_id));
+		 		$this->tpl->assign('row',$row);
+		 		return $this->tpl->fetch('chardata.tpl');		
 		 	} else return $L['charnotfound'];
 		 }// if	
 		 
@@ -1046,35 +989,22 @@ JS;
   	*/  	
   	private function search()
   	{
-$this->js=<<<JS
-$('#account_search').keyup(function(){
-	$('#loader').fadeIn('fast');
-	$('#ajax_result').load('?action=search&type=account_search&account_search='+$('#account_search').val(),
-	function(){\$('#loader').fadeOut('slow');});
-});
-$('#char_name').keyup(function(){
-	$('#loader').fadeIn('fast');
-	$('#ajax_result').load('?action=search&type=char_name&char_name='+$('#char_name').val(),
-	function(){\$('#loader').fadeOut('slow');});
-});
-$('#email_search').keyup(function(){
-	$('#loader').fadeIn('fast');
-	$('#ajax_result').load('?action=search&type=email_search&email_search='+$('#email_search').val(),
-	function(){\$('#loader').fadeOut('slow');});
-});
-JS;
-
 		$L = & $this->lang;
+		$tooltip='<div class="toolTip tpWhite clearfix"><p><img src="themes/img/icons/light-bulb-off.png" alt="Tip!" />'.$L['finded'].' %d</p></div>';
+
+		
 		if (isset($_GET['type'])) {
 			$ACT=$_GET['type'];
 			$tmpl = array (
-                    'table_open'          => '<table cellpadding="4">',
+                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" class="uiTable">',
                     'row_start'           => '<tr style="background:#E9E9E9">',
                     'row_alt_start'       => '<tr style="background:#F8F8F8">',
               );
 			$this->table->set_template($tmpl);	
 						
-			// поиск аккаунта по имени
+/*------------------------------------------------
+	Search accounts
+------------------------------------------------*/
 			if ($ACT=='account_search') {
 			
 			if($this->connect_db!=='ls'){
@@ -1088,16 +1018,19 @@ JS;
 				}
 				$FAV="<a href='".VOID."' onclick=\"add_bookmark('%s','%s');\$(this).fadeOut('slow')\" title='".$L['addbookm']."'><img src='themes/i/bookmark_add.png' title='".$L['addbookm']."'></a>";
 				
-				$result=$this->db->sql_query("SELECT id,name FROM `account_data` WHERE name LIKE '$account%' OR name='$account'");
+				$result=$this->db->sql_query(aion::search_account($account));
+				$this->table->set_heading('Account','Last IP','Bookmark');
 				
 				if ($this->db->sql_numrows($result) > 0) {
-					while (list($id,$name)=$this->db->sql_fetchrow($result)) {
-						$this->table->add_row("<a href='?action=info&char=$id'>$name</a>",sprintf($FAV,$id,$name));
+					while (list($id,$name,$last_ip)=$this->db->sql_fetchrow($result)) {
+						$this->table->add_row("<a href='?action=info&char=$id'>$name</a>",$last_ip,sprintf($FAV,$id,$name));
 					}
 				} else exit($this->b($L['no_result']));
-				exit($this->b("<div>".$L['finded'].$this->db->sql_numrows($result)."</div><hr>").$this->table->generate());				
+				exit(sprintf($tooltip,$this->db->sql_numrows($result)).$this->table->generate());				
 			}
-			// поиск персонажа
+/*------------------------------------------------
+	Search characters
+------------------------------------------------*/
 			if ($ACT=='char_name') {
 				$name=$this->secure($_GET['char_name']);
 				if($this->connect_db!=='gs'){
@@ -1109,16 +1042,19 @@ JS;
 					exit($this->b($L['no_result']));
 				}				
 				
-				$result=$this->db->sql_query("SELECT id,name FROM `players` WHERE name LIKE '$name%' OR name='$name'");
+				$result=$this->db->sql_query(aion::search_chars($name));
+				$this->table->set_heading('Name','Account');
 				
 				if ($this->db->sql_numrows($result) > 0) {
-					while (list($id,$name)=$this->db->sql_fetchrow($result)) {
-						$this->table->add_row("<a href='?action=char&char_id=$id'>$name</a>");
+					while (list($id,$name,$account_name)=$this->db->sql_fetchrow($result)) {
+						$this->table->add_row("<a href='?action=char&char_id=$id'>$name</a>",$account_name);
 					}
 				} else exit($this->b($L['no_result']));
-				exit($this->b("<div>Найдено: ".$this->db->sql_numrows($result)."</div><hr>").$this->table->generate());					
+				exit(sprintf($tooltip,$this->db->sql_numrows($result)).$this->table->generate());					
 			}
-			// поиск по email
+/*------------------------------------------------
+	Search email
+------------------------------------------------*/
 			if ($ACT=='email_search') {
 			
 				if($this->connect_db!=='ls'){
@@ -1131,19 +1067,17 @@ JS;
 					exit($this->b($L['no_result']));
 				}				
 				$result=$this->db->sql_query(aion::search_email($email));
-				
+				$this->table->set_heading('Name','Email');
 				if ($this->db->sql_numrows($result) > 0) {
 					while (list($id,$name,$email)=$this->db->sql_fetchrow($result)) {
 						$this->table->add_row("<a href='?action=info&char=$id'>$name</a>",$email);
 					}
 				} else exit($this->b($L['no_result']));
-				exit($this->b("<div>Найдено: ".$this->db->sql_numrows($result)."</div><hr>").$this->table->generate());					
+				exit(sprintf($tooltip,$this->db->sql_numrows($result)).$this->table->generate());					
 			}			
 		}
-  		$this->table->add_row($L['search_account_name'],"<input type='text' name='account_search' id='account_search'>");
-  		$this->table->add_row($L['char_name'],			"<input type='text' name='char_name' id='char_name'>");
-  		$this->table->add_row($L['searchemail'],		"<input type='text' name='email_search' id='email_search'>");
-  		return "<div class='info_msg'>".$L['searchnotice']."</div>".$this->table->generate()."<div id='ajax_result'></div>";
+		
+		return $this->tpl->fetch('search.tpl');
   	}
 // ------------------------------------------------------------------------ 
 /**
@@ -1155,22 +1089,19 @@ JS;
   	public function ajax()
   	{
   		if (!isset($_SESSION['login'])) {
-  			return;
+  			return 'no bookmarks';
   		}
   		$login=$_SESSION['login'];
   		
   		if (file_exists(".{$login}_bookmark")) {
   			$S=unserialize(file_get_contents(".{$login}_bookmark"));
-  			$list='<h2>'.$this->lang['bookmarks'].'</h2>';
   			foreach ($S as $key => $value) {
-  				$list.="$value <a href='".VOID."' 
-  					onclick=\"$(this).hide();$(this).load('?action=bookmarks&delid=$key');\"><img src='themes/i/delete.png'>
-  				</a><br>";
+  				$list.="<li>$value</li>";
   			}
   			return $list;
   		}
   		
-  		return '';
+  		return 'no bookmarks';
   	}
 // ------------------------------------------------------------------------ 
 /**
@@ -1199,9 +1130,37 @@ JS;
   		file_put_contents(".{$login}_bookmark",serialize($S));
   		exit(0);
   	} 
+  	
+  	
+/*------------------------------------------------
+  		Управление закладками
+------------------------------------------------*/  	
+	function favarites(){
+  		if (!isset($_SESSION['login'])) {
+  			return 'no bookmarks';
+  		}
+  		$this->title=$this->lang['bookmarks'];
+  		$login=$_SESSION['login'];
+  		
+  		if (file_exists(".{$login}_bookmark")) {
+  			$S=unserialize(file_get_contents(".{$login}_bookmark"));
+  			if(count($S) == 0 || !is_array($S)) return 'no bookmarks';
+  			
+  			foreach ($S as $key => $value) {
+  				$this->table->add_row($value,"<a href='".VOID."' 
+  					onclick=\"$(this).hide();$(this).load('?action=bookmarks&delid=$key');\"><img src='themes/i/delete.png'>
+  				</a>");
+  			}
+  			return "<div class=\"fields\"><h2>".$this->lang['bookmarks']."</h2>".$this->table->generate()."</div>";
+  		}
+  		
+  		return 'no bookmarks';
+	}
+
 // ------------------------------------------------------------------------     
 /*
-	TODO сделать больше проверок при выдачи предмета
+    Выдача предмета
+	additems.tpl
 */
 		function additem()
 		{  
@@ -1278,28 +1237,18 @@ JS;
 				}
       // end try  
 		}// end isset 
-			$this->table->add_row($L['iditem'],"<input type='text' name='id' id='iid'><a href='".VOID."' onclick=\"$('.fastlist').toggle('fast');\" title='Fast items'><img src='themes/i/wizard.png' title='Fast items'></a>");  
-			
+
+			$this->tpl->assign('');
+
 			$this->table->add_row('',"<div class='fastlist hide'>
 			
 			 <a href='".VOID."' onclick=\"add_item('182400001')\">".$this->get_item_name(182400001)."</a><br>
 			 <a href='".VOID."' onclick=\"add_item('162000029')\">".$this->get_item_name(162000029)."</a><br>
 			 <a href='".VOID."' onclick=\"add_item('162000066')\">".$this->get_item_name(162000066)."</a><br>
-
-			 
 			</div>");
-			
-			$this->table->add_row($L['count'],"<input type='text' name='count' value='1'>");
-			$this->table->add_row($L['eqiped'],"<input type='checkbox' value='1' name='eqip'>");		 
-			$this->table->add_row($L['slot'],"<input type='text' name='slot' value='0'>");  
-			$SIWCH="<a href='".VOID."' onclick=\"\$('.switch').toggle('slow');\">".$L['swidname']."</a>";
-			// переключалкО
-			$SW_FIELD="<div class='switch'>".$L['char_name']."<br>
-				<input type='text' name='name'></div>
-			<div class='switch hide'>".$L['char_id']."<br>
-				<input type='text' name='char_id'></div>";  
-				
-			$this->table->add_row($SIWCH,$SW_FIELD); 			
+
+            return $this->tpl->fetch('additems.tpl');
+
 			return $content.="<div class='succes_msg fademe'>".$L['itemnotice']."</div>".
 					$this->table->generate()."<input type='submit' value='".$L['additem']."'>";
 		}  
@@ -1343,6 +1292,10 @@ JS;
 			
 		}
 		
+		
+/*------------------------------------------------------------------------
+	Список персонажей
+*------------------------------------------------------------------------*/			
 	function charlist()
 	{
 		
@@ -1355,7 +1308,7 @@ JS;
 			$this->connect_db='gs';
 		}
 		$this->table->clear();
-$this->js=<<<JS
+$this->js.=<<<JS
 \$('#chkey').keyup(function(){
 	  var char;
 	  char=\$('#chkey').val();
@@ -1365,11 +1318,10 @@ $this->js=<<<JS
 JS;
 		$chars=range('a','z');
 		foreach ($chars as $key => $value) {
-			$chars[$key]="<a href='?action=accounts&C=$value' onclick=\"ajax_player('$value');return false;\">$value</a> ";
+			$chars[$key]="<a href='?action=accounts&C=$value' class='butPage' onclick=\"ajax_player('$value');return false;\">$value</a> ";
 		}
-		$chars[]="<a href='?action=accounts' onclick=\"ajax_player('');return false;\">".$L['all']."</a> <input type='text' id='chkey' name='char' maxlength='1' style='width:10px'>";
-		$this->speedbar="<strong>".$this->table->generate($chars).'</strong>';
-		$this->table->clear();
+		$chars[]="<a href='?action=accounts' class='butPage' onclick=\"ajax_player('');return false;\">".$L['all']."</a> <input type='text' id='chkey' name='char' maxlength='1' style='width:10px'>";
+		$this->speedbar=implode('&nbsp;',$chars);
 		//todo need translate
 		$this->table->set_heading($L['char'],$L['account'],$L['level']);
 		
@@ -1382,7 +1334,7 @@ JS;
 			$result=$this->db->sql_query("SELECT exp,name,account_name,account_id FROM `players` LIMIT 0 , 30");
 		}
 			$tmpl = array (
-                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" id="tablesorter">',
+                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" class="uiTable">',
                     'row_start'           => '<tr style="background:#E9E9E9">',
                     'row_alt_start'       => '<tr style="background:#F8F8F8">',
               );
@@ -1398,13 +1350,12 @@ JS;
 			}
 		}
 		if (isset($_GET['ajax'])) exit($this->table->generate());
-		/*
-			TODO сделать кастомное поле для ввода символа
-		*/
 		$return.="<div id='ajax'>".$this->table->generate()."</div>";
 		return $return;		
 	}
-	// получение уровня няко няк
+/*------------------------------------------------------------------------
+		получение уровня няко няк 	 
+*------------------------------------------------------------------------*/ 
 	function get_level($EXP='') 
 	{
 	   if($EXP=='') return false;
@@ -1463,7 +1414,9 @@ JS;
 	   unset($EXP);
 	   return $level;
 	}
-	
+/*------------------------------------------------------------------------
+	Преобразование exp.  	 
+*------------------------------------------------------------------------*/		
 	function exp_list() 
 	{
 	 $level[1]=0;
@@ -1516,18 +1469,19 @@ JS;
 	 $level[48]=741341640;
 	 $level[49]=853768081;
 	 $level[50]=982677974;
-
 	 return $level;
 	}
 	
-	// просмотр и изменение предметов
+/*------------------------------------------------------------------------
+ 	 просмотр и изменение предметов
+*------------------------------------------------------------------------*/		
 	private function items(){
 	
 		include(CONF);
-		$return="<div class='popup hide'>
+		$return="<div class='popup hideme'>
 		<div class='popup_close'><a href='".VOID."' onclick=\"\$('.popup').fadeOut('slow');\"><img src='themes/i/dialog_close.png'></a></div><div id='popupajax'></div></div>";
 			
-		$this->js="function invenload(qitems){
+		$this->js.="function invenload(qitems){
 			\$('#loader').fadeIn('fast');
 			\$('#popupajax').load('?action=edititem&item='+qitems+'&ajax=1',function(){\$('#loader').hide('slow');\$(target).slideDown('slow')});
 			\$('#loader').fadeOut('slow');
@@ -1557,7 +1511,8 @@ JS;
 		   $itemUniqueId=intval($_POST['itemUniqueId']);
 			$itemId		=intval($_POST['itemId']);
 			$itemCount	=intval($_POST['itemCount']);
-			$isEquiped	=intval($_POST['isEquiped']);
+			if(isset($_POST['isEquiped']) && $_POST['isEquiped']==1)
+				$isEquiped	=1; else $isEquiped	=0;
 			$slot		=intval($_POST['slot']);
 			$this->db->sql_query("UPDATE inventory 
 			SET  
@@ -1573,52 +1528,143 @@ JS;
                     'row_start'           => '<tr style="background:#E9E9E9">',
                     'row_alt_start'       => '<tr style="background:#F8F8F8">',
               );
+            // применяем шаблон  
 			$this->table->set_template($tmpl);	
+			
+			// проверка и опреление ссылки для сортировки
+			$CURRENT_LINK="?action=items&char_id=$char_id&order=";
+			if(isset($_GET['sort']) && $_GET['sort']=='DESC'){
+				$SORT='ASC';
+			} else $SORT='DESC';
+			
 			
 			$result=$this->db->sql_query("SELECT name,account_name,account_id FROM players WHERE id='$char_id' LIMIT 1"); 
 			if ($this->db->sql_numrows($result) > 0) {
 					 list($name,$account_name,$account_id)=$this->db->sql_fetchrow($result);
-					 $this->speedbar="<p><a href='?action=info&char=$account_id'>$account_name</a> &rarr; <a href='?action=char&char_name=$name'>$name</a> &rarr; $char_id</p>";
+					 $this->speedbar="<p><a href='?action=info&char=$account_id'>$account_name</a> &rarr; <a href='?action=char&char_name=$name'>$name</a> &rarr; $char_id &rarr; ".$L['inven']."</p>";
 			}  else {
 				return FALSE;
 			} 
 			
+			// сортируем данные
+			$_sort='DESC';
+			$_order='isEquiped';
 			
-			$result=$this->db->sql_query("SELECT itemUniqueId,itemId,itemCount,isEquiped,slot FROM inventory WHERE itemOwner=$char_id ORDER BY isEquiped DESC");
-			$this->table->set_heading($L['item_name'],$L['count'],$L['eqiped'],$L['action']);
+			if(isset($_GET['order'])){
+				if(isset($_GET['sort']) && $_GET['sort']=='DESC'){
+					$_sort='DESC';
+				} else $_sort='ASC';
+				
+				if($_GET['order']=='count') $_order='itemCount'; else  $_order='isEquiped';
+			}
+			$result=$this->db->sql_query("SELECT itemUniqueId,itemId,itemCount,isEquiped,slot FROM inventory WHERE itemOwner=$char_id ORDER BY $_order $_sort");
+			
+			$this->table->set_heading(
+			'#',
+				$L['item_name'],
+				"<a href='{$CURRENT_LINK}count&sort=$SORT'>".$L['count']."</a>",
+				"<a href='{$CURRENT_LINK}eqip&sort=$SORT'>".$L['eqiped']."</a>",
+				$L['action']
+			);
 			
 			while (list($itemUniqueId,$itemId,$itemCount,$isEquiped,$slot)=$this->db->sql_fetchrow($result))
 			{
-				$action="<a href='".VOID."' onclick=\"invenload('$itemUniqueId')\"><img src='themes/i/edit.png'></a>
+				$action="<a href='".VOID."' name='$itemUniqueId' onclick=\"invenload('$itemUniqueId')\"><img src='themes/i/edit.png'></a>
 				<a href='?action=items&char_id=$char_id&delete=$itemUniqueId' 
 					onclick=\"if (!confirm('".$L['confimdelitem']."')) return false;\"><img src='themes/i/delete.png'></a>";
-				$this->table->add_row($this->get_item_name($itemId),$itemCount,($isEquiped)?$L['y']:$L['n'],$action);
+				$aiondb=(isset($_SESSION['lang']) && $_SESSION['lang']=='en')?'www':'ru';	
+				$this->table->add_row("<a class='aion-recipe-icon-medium' href='http://$aiondb.aiondatabase.com/item/$itemId'></a>",$this->get_item_name($itemId),$itemCount,($isEquiped)?$L['y']:$L['n'],$action);
 			}
 			return $return.$this->table->generate();
 		} else {
 			return $this->item_finder();
 		}
 	}
-	
+/*-----------------------------------------
+	Поиск предметов
+-----------------------------------------*/	
 	function item_finder(){
 		$content='';
 		$itemid='';
 		$L = & $this->lang;
 		
+					$tmpl = array (
+                    'table_open'          => '<table border="0" cellpadding="4" cellspacing="5" class="uiTable">',
+                    'row_start'           => '<tr style="background:#E9E9E9">',
+                    'row_alt_start'       => '<tr style="background:#F8F8F8">',
+              );
+			$this->table->set_template($tmpl);
+        
 		if(isset($_POST['item'])){
 			$itemid=intval($_POST['item']);
 			include(CONF);
-			$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);	
-			$result=$this->db->sql_query("SELECT itemUniqueId,itemId,itemCount,isEquiped,slot FROM inventory WHERE itemId = $itemid");
+			$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
+
+			$result=$this->db->sql_query("SELECT i.slot,i.itemOwner, p.name, i.itemUniqueId FROM inventory as i, players as p WHERE i.itemId = $itemid AND i.itemOwner=p.id");
+			
 			$content="Найдено ".$this->db->sql_numrows($result)." предметов.
-			<p><a href='#indev'><img src='themes/i/showcharitems.png'> Показать всех персонажей с данным предметом</a></p>
-			<p><a href='#indev'><img src='themes/i/delitem.png'> <font color='red'>Удалить предмет у всех</font></a></p>
-			";	
+			<!--<p><a href='#indev'><img src='themes/i/showcharitems.png'> Показать всех персонажей с данным предметом</a></p>
+			<p><a href='#indev'><img src='themes/i/delitem.png'> <font color='red'>Удалить предмет у всех</font></a></p>-->
+			";
+
+			while (list($slot,$itemOwner,$name,$itemUniqueId)=$this->db->sql_fetchrow($result))
+			{
+
+				$this->table->add_row("<a href='index.php?action=char&char_id=$itemOwner'>$name</a>","<a href='index.php?action=items&char_id=$itemOwner#$itemUniqueId'>".$L['gotoinven']."</a>");
+			}
+
+            $content.=$this->table->generate();
+
 		}
 	
-		return "Введите код предмета для поиска <input type='text' name='item' value='$itemid'><input type='submit' value='Поиск'><hr>".$content;	
+		return "<form method='post'>".$L['itemsearch']."<input type='text' name='item' value='$itemid'><input type='submit' value='".$L['search']."'></form>
+		<hr>".$content."</div>";	
 	}
 	
+/*------------------------------------------------
+	Конструктор данных
+------------------------------------------------*/
+private function construct(){
+	$this->title="Конструктор";
+	return "in developing :(";
+	if(isset($_POST['name'])){
+		$name	=	$_POST['name'];
+		$type	=	$_POST['type'];
+		$key	=	$_POST['key'];
+		$value	=	$_POST['value'];
+		$query	=	$_POST['query'];
+		$db		=	$_POST['db'];
+		$vars	=	array();
+		
+		for($i=0; $i < count($key); $i++){
+			$vars[$key[$i]]=$value[$i];
+		}
+		
+		$constructor=array(
+			'name'=>$name,
+			'type'=>$type,
+			'vars'=>$vars,
+			'query'=>$query
+		);
+		if(!file_exists("data/constructor.db")){
+			$SQLITE= new SQLiteDatabase("data/constructor.db",0666,&$error) or dir("Ошибка: $error");
+			$SQLITE->query("CREATE TABLE constr ( 
+				id INT NOT NULL PRIMARY KEY,
+				name TEXT NOT NULL,
+				type TEXT NOT NULL, 
+				vars TEXT, 
+				query TEXT NOT NULL
+			);");
+		} else $SQLITE= new SQLiteDatabase("data/$file_name.db",0666,&$error) or dir("Ошибка: $error");
+				
+		file_put_contents('data/const.serialize',serialize($constructor));
+	}
+	
+	return $this->tpl->fetch('const.tpl');
+}
+/*-----------------------------------------
+	Изменение предмета
+-----------------------------------------*/		
 	function edititem(){
 	
 		include(CONF);
@@ -1639,16 +1685,16 @@ JS;
 				extract($row);
 				
 				$this->table->add_row($L['uniqn'],"<input name='itemUniqueId' type='hidden' value='$itemUniqueId'>".$itemUniqueId);
-				$this->table->add_row($L['iditem'],"<input name='itemId' type='text' value='$itemId'><br>".$this->get_item_name($itemId));
-				$this->table->add_row($L['count'],"<input name='itemCount' type='text' value='$itemCount'>");
-				$this->table->add_row($L['eqiped'],"<input name='isEquiped' type='text' value='$isEquiped'>");
-				$this->table->add_row($L['slot'],"<input name='slot' type='text' value='$slot'>");
+				$this->table->add_row($L['iditem'],"<input name='itemId' class='sText' type='text' value='$itemId'><br>".$this->get_item_name($itemId));
+				$this->table->add_row($L['count'],"<input name='itemCount' class='sText' type='text' value='$itemCount'>");
+				$this->table->add_row($L['eqiped'],"<input name='isEquiped' class='sCheck' type='checkbox' value='1' ".(($isEquiped)?'checked':'').">");
+				$this->table->add_row($L['slot'],"<input name='slot' class='sText' type='text' value='$slot'>");
 				
-				exit($this->table->generate()."<input type='submit' name='edited' value='".$L['save']."'>");			
+				exit('<form method="post">'.$this->table->generate()."<input type='submit' name='edited' class='editbtn1 butDef' value='".$L['save']."'></form>");			
 		}
 	}
 // получение название предмета	
-	private function get_item_name($id){
+	public function get_item_name($id){
 	
 	if (isset($_SESSION['lang'])) {
 		$file_name=$_SESSION['lang']."_items";
@@ -1656,32 +1702,38 @@ JS;
 	
 	$L = & $this->lang; // link
 	
-	// если не создан массив
-	if($this->items==''){
-	// есть ли кешированый объект?
-		if (file_exists("./cache/{$file_name}.cache.php")) {
-			include("./cache/{$file_name}.cache.php");
-			$this->items=$items;
-		} else {
-			$xml=simplexml_load_file("./xml/{$file_name}.xml");
+	// check db file
+	if(!isset($this->itemsdb)){
+	
+	if(!file_exists("data/$file_name.db")){
+	// create database
+		$this->itemsdb= new SQLiteDatabase("data/$file_name.db",0666,&$error) or dir("Ошибка: $error");
+		$this->itemsdb->query("CREATE TABLE items ( serial INT NOT NULL PRIMARY KEY , id INT NOT NULL , name TEXT NOT NULL );");
+		$xml=simplexml_load_file("./data/{$file_name}.xml");
 		
 		// создаём массив предметов	
 		$this->items=array();
-		
-		$file="<?php\r\n\$items=array(\r\n";
-		foreach ($xml->aionitem  as $key => $value)
+		$i=0;
+		foreach ($xml->aionitem as $key => $value)
 		{
-			$itid=intval($value['id']);
-			$val=$value['name'][0];
-			$this->items[$itid]=$val;
-			$file.="'$itid'=>\"$val\",\r\n";
+			$i++;
+			$this->itemsdb->query("INSERT INTO items (serial,id,name) VALUES($i,".intval($value['id']).",'".sqlite_escape_string($value['name'][0])."');");
 		}
-		$file.=");";
-		file_put_contents("./cache/{$file_name}.cache.php", $file);
-	 }
-	} 
-	// массив есть ищем предмет
-		if(isset($this->items[$id])) return $this->items[$id]; else return $L['erritem'];
+		
+	} else{
+		$this->itemsdb= new SQLiteDatabase("data/$file_name.db",0666,&$error) or dir("Ошибка: $error");
+	}//file_exists
+	
+	}//isset
+	
+	
+	$ItemName=$this->itemsdb->singleQuery("SELECT name FROM items WHERE id=".intval($id));
+	
+	if($ItemName){
+		return($ItemName);
+	} else{
+		return $L['erritem'];
+	}
 	}
 
 /*------------------------------------------------------------------------
@@ -1704,12 +1756,14 @@ JS;
 			return $row['ap'];
 			
 		} else {
-			$this->db->sql_query("INSERT INTO abyss_rank  (player_id,ap) VALUES('$char_id',0)");
+			$this->db->sql_query("INSERT INTO abyss_rank (player_id,ap) VALUES('$char_id',0)");
 		}
 		
 		return 0;
 	}
-	
+/*------------------------------------------------------------------------
+ 	 Метод  вывода координат для телепортирования
+*------------------------------------------------------------------------*/	
 	function world($id){
 		switch ($id) {
 		
@@ -1925,6 +1979,31 @@ JS;
 				exit('teleport error');
 				break;
 		} 	
+	}
+	
+	function config(){
+	
+		$lang	='ru';
+		$acl	='1';
+		$debug	='false';
+		$effect	='false';
+		$title	='AionCP 1.0';
+		if(count($_POST) ==0) return "Ошибка получения данных";
+		
+		if(isset($_POST['title'])) $title=addslashes($_POST['title']);
+		if(isset($_POST['lang']))  $lang=$this->secure($_POST['lang']);
+		if(isset($_POST['debug'])) $debug='true';
+		if(isset($_POST['effect']))	$effect='true';
+		if(isset($_POST['acl']) && $_POST['acl'] >0) $acl=intval($_POST['acl']);
+$file=<<<FILE
+<?php\r\n/* ------------------------------------------------------------------------\r\n\tFree CP for Aoin\r\n\tDeveloper www.fdcore.ru\r\n\r\n\thttp://code.google.com/p/aioncp/\r\n------------------------------------------------------------------------ */\r\n// DEBUG MODE (bool)\r\ndefine('DEBUG', $debug);\r\n// Default lang in cp (ru \ end)\r\ndefine('DEFAULT_LANG','$lang');\r\n// jquery effect\r\ndefine('JS_EFFECT',$effect);\r\n// main title postfix\r\ndefine('TITLE','$title');\r\n// work driver !\r\ndefine('DRIVER', 'mysql');\r\n// Access level for login\r\ndefine('ALLOW_ACL', $acl);\r\n
+FILE;
+		if(is_writable('class/core.php')){
+			file_put_contents('class/core.php',$file);
+			unset($file);
+			return "Настройки сохранены успешно!";
+		}
+		return "Не удалось сохранить настройки, недостаточно прав на файл class/core.php!";
 	}
 // ------------------------------------------------------------------------
   	/*
