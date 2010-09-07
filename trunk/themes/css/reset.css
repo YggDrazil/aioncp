@@ -1,0 +1,80 @@
+/* Global Reset */
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote{ 
+	margin:0;
+	padding:0;
+}
+table {
+	/*border-collapse:collapse;*/
+	/*border-spacing:0;*/
+}
+fieldset,img { 
+	border:0;
+}
+address,caption,cite,code,dfn,em,strong,th,var {
+	font-style:normal;
+	font-weight:normal;
+}
+strong{
+	font-weight:bold;
+}
+ol,ul {
+	list-style:none;
+}
+caption,th {
+	text-align:left;
+}
+
+h1,h2,h3,h4,h5,h6 {
+	font-size:100%;
+	font-weight:normal;
+}
+q:before,q:after {
+	content:'';
+}
+abbr,acronym { border:0;}
+/* End Global Reset*/
+
+#markdown h1, #markdown h2, #markdown h3, #markdown h4, #markdown h5, #markdown h6 {font-weight:normal;color:#111;}
+#markdown h1 {font-size:3em;line-height:1;margin-bottom:0.5em;}
+#markdown h2 {font-size:2em;margin-bottom:0.75em;}
+#markdown h3 {font-size:1.5em;line-height:1;margin-bottom:1em;}
+#markdown h4 {font-size:1.2em;line-height:1.25;margin-bottom:1.25em;}
+#markdown h5 {font-size:1em;font-weight:bold;margin-bottom:1.5em;}
+#markdown h6 {font-size:1em;font-weight:bold;}
+#markdown h1 img, #markdown h2 img, #markdown h3 img, #markdown h4 img, #markdown h5 img, #markdown h6 img {margin:0;}
+#markdown p {margin:0 0 1.5em;}
+#markdown p img.left {float:left;margin:1.5em 1.5em 1.5em 0;padding:0;}
+#markdown p img.right {float:right;margin:1.5em 0 1.5em 1.5em;}
+#markdown a:focus, #markdown a:hover {color:#000;}
+#markdown a {color:#009;text-decoration:underline;}
+#markdown blockquote {margin:1.5em;color:#666;font-style:italic;}
+#markdown strong {font-weight:bold;}
+#markdown em, #markdown dfn {font-style:italic;}
+#markdown dfn {font-weight:bold;}
+#markdown sup, #markdown sub {line-height:0;}
+#markdown abbr, #markdown acronym {border-bottom:1px dotted #666;}
+#markdown address {margin:0 0 1.5em;font-style:italic;}
+#markdown del {color:#666;}
+#markdown pre {margin:1.5em 0;white-space:pre;}
+#markdown pre, #markdown code, #markdown tt {font:1em 'andale mono', 'lucida console', monospace;line-height:1.5;}
+#markdown li #markdown ul,#markdown li ol {margin:0;}
+#markdown ul, #markdown ol {margin:0 1.5em 1.5em 0;padding-left:3.333em;}
+#markdown ul {list-style-type:disc;}
+#markdown ol {list-style-type:decimal;}
+#markdown dl {margin:0 0 1.5em 0;}
+#markdown dl dt {font-weight:bold;}
+#markdown dd {margin-left:1.5em;}
+#markdown table {margin-bottom:1.4em;width:100%;}
+#markdown th {font-weight:bold;}
+#markdown thead th {background:#c3d9ff;}
+#markdown th, #markdown td, #markdown caption {padding:4px 10px 4px 5px;}
+#markdown tr.even td {background:#e5ecf9;}
+#markdown tfoot {font-style:italic;}
+#markdown caption {background:#eee;}
+
+#markdown ul {
+	list-style: disc;
+}
+#markdown ol{
+    list-style: decimal;
+}
