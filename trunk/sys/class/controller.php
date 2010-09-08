@@ -19,7 +19,12 @@
  * @author NetSoul
  */        
 define('VOID', 'javascript:void(0);');
-define('AIONCP_VERSION','AionCP&trade; 1.1 Professional');
+
+if(defined('PRO'))
+	define('AIONCP_VERSION','AionCP&trade; 1.1 Professional');
+else
+	define('AIONCP_VERSION','AionCP&trade; 1.1 Freeware');
+	
 if(!defined('CORE')) exit('hacking attept!');
 
 
@@ -548,9 +553,8 @@ define('ENCRYPT_KEY', '$en_key');";
               return $this->$ACT();
 
 		// Proffessional version check [pro file]
-        if(file_exists(CLASS_PATH . 'pro.controller.php'))
+        if(defined('PRO'))
         {
-        	include CLASS_PATH . 'pro.controller.php';
 			// create new pro controller
 			try {
 				
@@ -955,6 +959,7 @@ define('ENCRYPT_KEY', '$en_key');";
   			}
 
         $this->cache->set(array($LANG . $t=>$cacheat.$this->table->generate()), array('statistic',$t), 3600);
+        
   		return $this->table->generate();
   	}
 // ------------------------------------------------------------------------
@@ -1514,8 +1519,7 @@ echo $js;
 					// connecting to game server
 					include(CONF);          
 					$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
-				//	echo $insert_query="INSERT INTO inventory (itemId,itemCount,itemOwner,isEquiped,slot ) 
-				//		VALUES($item_id,$count,$char_id,$eqiped,$slot)";
+				
 					$update_query="UPDATE inventory SET itemCount=itemCount+$count WHERE itemOwner='$char_id' AND itemId='$item_id' LIMIT 1";
 											
 					if ($count > 1) {    
@@ -2053,7 +2057,7 @@ private function construct(){
  
 								$this->tpl->assign('result',$this->table->generate().$pagination); 
 								                     
-	                        }  else $this->tpl->assign('result','No results'); 
+	                        }  else $this->tpl->assign('result',$L['no_result']); 
 	                        
                        
                         }
@@ -2188,6 +2192,7 @@ private function construct(){
 }
 /*-----------------------------------------
 	Изменение предмета
+	@todo use template
 -----------------------------------------*/		
 	function edititem(){
 	
@@ -2425,7 +2430,7 @@ FILE;
     
     function friends(){
     
-    	if(isset($_GET['char_id'])){
+    	if(isset($_GET['char_id']) && $_GET['char_id'] > 0){
     		$char_id=intval($_GET['char_id']);
  			include(CONF);
 			$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server); 
@@ -2516,7 +2521,7 @@ FILE;
 		// check db file
 		if(!isset($this->itemsdb)) $this->itemsdb= new SQLiteDatabase("$file_name.db",0666,$error) or dir("Error: $error");
 		
-		if(isset($_GET['page'])) $result=$this->itemsdb->query("SELECT * FROM items LIMIT ".($_GET['page']*50).",50");
+		if(isset($_GET['page']) && is_numeric($_GET['page'])) $result=$this->itemsdb->query("SELECT * FROM items LIMIT ".($_GET['page']*50).",50");
 		
 			else {
 				if(isset($_POST['searchname']) && strlen($_POST['searchname']) > 2){
