@@ -44,10 +44,9 @@ if(!file_exists(SYSTEM_PATH.'path.php'))
        exit('File SYSTEM_PATH/path.php not found :(');
 
 include_once(SYSTEM_PATH.'path.php');
-/*
 
-*/
-
+// Proffessional version check [pro file]
+if(file_exists(CLASS_PATH . 'pro.controller.php')) include (CLASS_PATH . 'pro.controller.php');
 
 // includes files
 $class_list=array(
@@ -62,6 +61,9 @@ $class_list=array(
   'encrypt.class.php',
 );
 
+
+        
+        
 foreach ($class_list as $key => $value) {
 	$value=CLASS_PATH . $value;
 	// есть чо?
