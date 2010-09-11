@@ -527,7 +527,7 @@ class helper {
 				{
 					$temp_array = array();
 
-					$temp_array = directory_map($source_dir.$file.DIRECTORY_SEPARATOR, $top_level_only, $hidden);
+					$temp_array = helper::directory_map($source_dir.$file.DIRECTORY_SEPARATOR, $top_level_only, $hidden);
 
 					$filedata[$file] = $temp_array;
 				}
