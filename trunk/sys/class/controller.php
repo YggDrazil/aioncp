@@ -42,7 +42,9 @@ class aioncp
 	public $tpl; // smarty
 	private $const_db='';
     private static $instance=NULL;
-
+	private $SQLDB=SQLDB;
+	
+    	
 	function aioncp()
 	{
 		$this->tpl		=	new Smarty;
@@ -2247,7 +2249,7 @@ private function construct(){
 	
 	if(!file_exists("$file_name.db")){
 	// create database
-		$this->itemsdb= new SQLiteDatabase("$file_name.db",0666,$error) or dir("Ошибка: $error");
+		$this->itemsdb= new SQLiteDatabase2("$file_name.db",0666,$error) or dir("Ошибка: $error");
 		$this->itemsdb->query("CREATE TABLE items ( serial INT NOT NULL PRIMARY KEY , id INT NOT NULL , name TEXT NOT NULL );");
 		if(file_exists("{$file_name}.xml"))
         {
@@ -2264,7 +2266,7 @@ private function construct(){
 		}
        }
 	} else{
-		$this->itemsdb= new SQLiteDatabase("$file_name.db",0666,$error) or dir("Error: $error");
+		$this->itemsdb= new $this->SQLDB("$file_name.db",0666,$error) or dir("Error: $error");
 	}//file_exists
 	
 	}//isset
@@ -2519,7 +2521,7 @@ FILE;
 		$L = & $this->lang; // link
 		
 		// check db file
-		if(!isset($this->itemsdb)) $this->itemsdb= new SQLiteDatabase("$file_name.db",0666,$error) or dir("Error: $error");
+		if(!isset($this->itemsdb)) $this->itemsdb= new $this->SQLDB("$file_name.db",0666,$error) or dir("Error: $error");
 		
 		if(isset($_GET['page']) && is_numeric($_GET['page'])) $result=$this->itemsdb->query("SELECT * FROM items LIMIT ".($_GET['page']*50).",50");
 		
