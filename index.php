@@ -18,6 +18,8 @@
 $pathinfo = pathinfo(__FILE__);
 define('ROOT', $pathinfo['dirname'].DIRECTORY_SEPARATOR);
 
+//fix sqlitedb
+define("SQLDB",'SQLiteDatabase2');
 
 if(!defined('DOMAIN')){
 	define("DOMAIN",'AionCP');
@@ -58,8 +60,9 @@ $class_list=array(
     'cache.class.php',
      'throttling.php',
 	'mysql.model.php',
-  'encrypt.class.php',
-);
+	'SQLiteDatabase2.php',
+  'encrypt.class.php'
+ );
 
 
         
