@@ -78,7 +78,7 @@
 	<a class="close" title="Close"></a> 
 </div> 
 {/if}
-<form method="post" action="?action=construct">
+<form method="post">
     {$result}
 </form>
 </div>

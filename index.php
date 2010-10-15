@@ -1,9 +1,9 @@
 <?php
 /* ------------------------------------------------------------------------
 
- * Aion Control Panel [Professional Version]
+ * Aion Control Panel [FreeWare Version]
  *
- * @version 1.1
+ * @version 1.1.2
  * @author NetSoul (FDCore main Developer)
  * @link http://www.fdcore.ru
  *
@@ -19,7 +19,7 @@ $pathinfo = pathinfo(__FILE__);
 define('ROOT', $pathinfo['dirname'].DIRECTORY_SEPARATOR);
 
 //fix sqlitedb
-define("SQLDB",'SQLiteDatabase2');
+//define("SQLDB",'SQLiteDatabase2');
 
 if(!defined('DOMAIN')){
 	define("DOMAIN",'AionCP');
@@ -34,7 +34,7 @@ if(!defined('DOMAIN')){
 @session_start();
 
 // fix 24-05-2010
-if (!extension_loaded('sqlite')) {
+if (!extension_loaded('sqlite') && function_exists('dl')) {
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         @dl('php_sqlite.dll');
     } else {
@@ -44,6 +44,9 @@ if (!extension_loaded('sqlite')) {
 // route path
 if(!file_exists(SYSTEM_PATH.'path.php'))
        exit('File SYSTEM_PATH/path.php not found :(');
+
+if(!is_readable(SYSTEM_PATH.'path.php'))
+	exit('File SYSTEM_PATH/path.php not readable :(');
 
 include_once(SYSTEM_PATH.'path.php');
 
@@ -60,7 +63,7 @@ $class_list=array(
     'cache.class.php',
      'throttling.php',
 	'mysql.model.php',
-	'SQLiteDatabase2.php',
+//	'SQLiteDatabase2.php',
   'encrypt.class.php'
  );
 

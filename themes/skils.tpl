@@ -21,16 +21,16 @@
 
 <div class="fields">
 {if isset($smarty.get.char_id) && count($skils_list) > 0}
-<h3><a href="#">Список скилов</a></h3>
+<h3><a href="#">{$lang.skilllist}</a></h3>
 <div>
 	<table border="0" class="uiTable">
 		<thead>
 		  <tr>
 			<th>#</th>
 			<th>id</th>
-			<th>Скилл</th>
-			<th>Уровень</th>
-			<th>Действие</th>
+			<th>{$lang.skill}</th>
+			<th>{$lang.level}</th>
+			<th>{$lang.action}</th>
 		  </tr>
 		</thead>
 		{foreach from=$skils_list item="s"}
@@ -50,34 +50,36 @@
 	</table>
 </div>
 {/if}
-<h3><a href="#">Добавить скил</a></h3>
+<h3><a href="#">{$lang.add}</a></h3>
 <div>
 <form method="post">
 <table>
 <tr>
-	<td>ID Персонажа</td>
+	<td>{$lang.char_id}</td>
 	<td><input type="text" pattern="([0-9]+)" name='player_id' class="sText" value='{$smarty.get.char_id}'/></td>
 </tr>
 <tr>
-	<td>ID Скила</td>
+	<td>{$lang.skillid}</td>
 	<td><input type="text" name='skillId' pattern="([0-9]+)" class="sText"/></td>
 </tr>
 <tr>
-	<td>Уровень скила</td>
+	<td>{$lang.levelskill}</td>
 	<td><input type="text" name='skillLevel' pattern="([0-9]+)" class="sText" value='1'/></td>
 </tr>
 </table>
-<input type='submit' name='add' value='Добавить' class='editbtn1 butDef'>
+<input type='submit' name='add' value='{$lang.add}' class='editbtn1 butDef'>
 </form>
 </div>
 </div><!-- fields -->
 <script type="text/javascript">
+GET_char_id='{$smarty.get.char_id}';
 
+{literal}
 function sadd(element){
 	var level=$('#lvl'+element).text();
 	level++;
 	$('#lvl'+element).text(level);
-	$.get('?action=skills&char_id='+{$smarty.get.char_id}+'&skillid='+element+'&level='+level);
+	$.get('?action=skills&char_id='+GET_char_id+'&skillid='+element+'&level='+level);
 }
 
 function smin(element){
@@ -86,14 +88,16 @@ function smin(element){
 	level--;
 	if(level < 1) level = 1;
 	$('#lvl'+element).text(level);
-	$.get('?action=skills&char_id='+{$smarty.get.char_id}+'&skillid='+element+'&level='+level);
+	$.get('?action=skills&char_id='+GET_char_id+'&skillid='+element+'&level='+level);
 }
 
 function sdel(element){
-	if (!confirm('Вы действительно хотите удалить данный скилл?')) return false;
+	{/literal}
+	if (!confirm('{$lang.acceptdelskill}')) return false;
+	{literal}
 	$('#row'+element).hide();
-	$.get('?action=skills&char_id='+{$smarty.get.char_id}+'&delskillid='+element);
+	$.get('?action=skills&char_id='+GET_char_id+'&delskillid='+element);
 
 }
-
+{/literal}
 </script>

@@ -8,8 +8,10 @@
 	<a class="close" title="Close"></a>
 </div>
 {/if}
-{literal}
+
 <script>
+
+{literal}
  $(document).ready(function() {
     $(".accord").accordion({autoHeight: false});
   });
@@ -20,18 +22,20 @@
 				height:140,
 				modal: true,
 				buttons: {
-					'Удалить': function() {
+				
+					'{/literal}{$lang.delete}{literal}': function() {
 						$.getScript("?action=anonce&del="+anonce_id);
 						$(this).dialog('close');
 					},
-					'Отмена': function() {
+					'{/literal}{$lang.cancel}{literal}': function() {
 						$(this).dialog('close');
 					}
 				}
 			});
 	}
-</script>
 {/literal}
+</script>
+
 <div id="dialog-confirm" title="Вы уверены" class="hideme">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Вы уверены что хотите удалить данный анонс?</p>
 </div>
@@ -39,17 +43,17 @@
 
 <div class="fields accord">
 {if isset($edit) && $edit==TRUE}
-<h3><a href="#">Изменить анонс {$edit_row.announce}</a></h3>
+<h3><a href="#">{$lang.editannonce} {$edit_row.announce}</a></h3>
 <div>
 	<form method="post">
 <table>
 
 	<tr>
-		<td>Сообщение</td>
+		<td>{$lang.message}</td>
 		<td><input type="text" name='edit_announce' class="sText" value="{$edit_row.announce}"/></td>
 	</tr>
 	<tr>
-		<td>Кому отображать</td>
+		<td>{$lang.wshow}</td>
 		<td><select name="edit_faction" class="sSelect">
 			<option value="ALL" {if $edit_row.faction=="ALL"}selected="selected"{/if}>ALL</option>
 			<option value="ASMODIANS" {if $edit_row.faction=="ASMODIANS"}selected="selected"{/if}>ASMODIANS</option>
@@ -57,7 +61,7 @@
 		</select></td>
 	</tr>
 	<tr>
-		<td>Тип</td>
+		<td>{$lang.type}</td>
 		<td><select name="edit_type" class="sSelect">
 			<option value="ANNOUNCE" {if $edit_row.type=="ANNOUNCE"}selected="selected"{/if}>ANNOUNCE</option>
 			<option value="SHOUT" {if $edit_row.type=="SHOUT"}selected="selected"{/if}>SHOUT</option>
@@ -67,12 +71,12 @@
 		</select></td>
 	</tr>
 	<tr>
-		<td>Время повтора</td>
+		<td>{$lang.timereply}</td>
 		<td><input type="text" name='edit_delay' class="sText" value="{$edit_row.delay}"/></td>
 	</tr>
 
 </table>
-<input type='submit' class='editbtn1 butDef' value='Изменить'>
+<input type='submit' class='editbtn1 butDef' value='{$lang.edit}'>
 </form>
 </div>
 {/if}
@@ -80,14 +84,14 @@
 <h3><a href="#">Анонсы</a></h3>
 <div>
 <table border="0"  class="uiTable">
-<thead >
+<tr>
 	<th>id</th>
-	<th>Сообщение</th>
-	<th>Отображается для</th>
-	<th>Цвет</th>
-	<th>Время</th>
-	<th>Действие</th>
-</thead>
+	<th>{$lang.message}</th>
+	<th>{$lang.wshow}</th>
+	<th>{$lang.type}</th>
+	<th>{$lang.timereply}</th>
+	<th>{$lang.action}</th>
+</tr>
 	{foreach item="row" from=$rows}
 		<tr id="row{$row.id}">
 			<td>{$row.id}</td>
@@ -101,17 +105,17 @@
 	{/foreach}
 </table>
 </div>
-<h3><a href="#">Добавить анонс</a></h3>
+<h3><a href="#">{$lang.addanonce}</a></h3>
 <div>
 	<form method="post">
 <table>
 
 	<tr>
-		<td>Сообщение</td>
+		<td>{$lang.message}</td>
 		<td><input type="text" name='announce' class="sText"/></td>
 	</tr>
 	<tr>
-		<td>Кому отображать</td>
+		<td>{$lang.wshow}</td>
 		<td><select name="faction" class="sSelect">
 			<option value="ALL">ALL</option>
 			<option value="ASMODIANS">ASMODIANS</option>
@@ -119,7 +123,7 @@
 		</select></td>
 	</tr>
 	<tr>
-		<td>Тип</td>
+		<td>{$lang.type}</td>
 		<td><select name="type" class="sSelect">
 			<option value="ANNOUNCE">ANNOUNCE</option>
 			<option value="SHOUT">SHOUT</option>
@@ -129,12 +133,12 @@
 		</select></td>
 	</tr>
 	<tr>
-		<td>Время повтора</td>
+		<td>{$lang.timereply}</td>
 		<td><input type="text" name='delay' class="sText" placeholder="3600"/></td>
 	</tr>
 
 </table>
-<input type='submit' class='editbtn1 butDef' value='Добавить'>
+<input type='submit' class='editbtn1 butDef' value='{$lang.add}'>
 </form>
 </div>
 

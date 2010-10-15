@@ -11,8 +11,8 @@
 
 
 <div class="fields">
-<h2>Предметы</h2>
-<p>Введите имя предмета <input type="search" id="itemname" /></p>
+<h2>{$lang.items_title}</h2>
+<p>{$lang.enteritemname}<input type="search" id="itemname" /></p>
 
 	<div id="ajax">
 		{$table}

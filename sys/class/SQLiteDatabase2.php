@@ -1,8 +1,6 @@
 <?php
 class SQLiteDatabase2{
 	
-        var $database = '';///database i.e ../database/first_step.db 
-        var $persistent = false; 
         var	$error;
          
         // Database connection handle  
@@ -108,5 +106,7 @@ class SQLiteDatabase2{
         
 		}
 	
-
+		function __destruct(){
+			return (@sqlite_close($this->conn)); 
+		}
 }

@@ -32,7 +32,9 @@ class Cache{
 
 		if ( ! is_dir($this->config['directory']) OR ! is_writable($this->config['directory']))
 		
-			if (file_exists(CONF)) exit('The configured cache directory, '.$this->config['directory'].', is not writable.');
+			if (file_exists(CONF)) {
+				exit('The configured cache directory, '.$this->config['directory'].', is not writable.');
+			}
 	}
 
 	/**
