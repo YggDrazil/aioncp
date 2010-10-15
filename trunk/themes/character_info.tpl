@@ -30,8 +30,13 @@
 	<label for="name02" class="small">{$lang.name}</label> 
 	<input type="text" name='name' id='chname' value="{$row.name}"  class="sText"/>
 </p>
-
-
+{if $legion.name !==''}
+<p>
+	<label for="name02" class="small">{$lang.legion}</label> 
+	{$legion.name} (Lvl {$legion.level})
+	
+</p>
+{/if}
 <p> 
 	<label for="name01" class="small">{$lang.login}</label> 
 	<a href='?action=info&char={$row.account_id}' title='Open Account'>{$row.account_name}</a></p>

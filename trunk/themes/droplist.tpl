@@ -8,8 +8,9 @@
 	<a class="close" title="Close"></a>
 </div>
 {/if}
-{literal}
+
 <script>
+{literal}
  $(document).ready(function() {
     $(".fields").accordion({
 			autoHeight: false,
@@ -41,7 +42,7 @@ function delete_confim(item_id){
 function edit_form(item_id){
 			$('#edit_form').load("?action=droplist&edit="+item_id);
 			$('#'+item_id).animate({ backgroundColor: "lime" }, 1000);
-			$('#edit_form').attr('title',"Предмет с id "+item_id);
+			$('#edit_form').attr('title',"ID "+item_id);
 			
 			$("#edit_form").dialog({
 				resizable: false,
@@ -75,10 +76,10 @@ function edit_form(item_id){
 
 </script>
 {/literal}
-<div id="dialog-confirm" title="Вы уверены" class="hideme">
-	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Вы уверены что хотите удалить данный предмет?</p>
+<div id="dialog-confirm" title="{$lang.arsure}" class="hideme">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>{$lang.accdelrop}</p>
 </div>
-<div id="edit_form" class="hideme" title="Форма">Загружаю...</div>
+<div id="edit_form" class="hideme" title="Form">Load...</div>
 {if $message}
 <div class="toolTip tpBlue clearfix" > 
 	<p> 
@@ -92,17 +93,17 @@ function edit_form(item_id){
 <div class="fields">
 
 {if $rows && count($rows) > 0}
-<h3><a href="#">Список предметов по id монстра</a></h3>
+<h3><a href="#">{$lang.itemlistbyidm}</a></h3>
 <div>
 <table border="0"  class="uiTable">
 <thead >
 	<th>id</th>
-	<th>Предмет</th>
-	<th>Мин.</th>
-	<th>Макс.</th>
-	<th>Моб</th>
-	<th>Шанс</th>
-	<th>Действие</th>
+	<th>{$lang.item}</th>
+	<th>{$lang.min}</th>
+	<th>{$lang.max}</th>
+	<th>{$lang.monsterid}</th>
+	<th>{$lang.chance}</th>
+	<th>{$lang.action}</th>
 </thead>
 	{foreach item="row" from=$rows}
 		<tr id="{$row.Id}">
@@ -119,19 +120,19 @@ function edit_form(item_id){
 </table>
 </div>
 {/if}
-<h3><a href="#">Работа с дроплистом</a></h3>
+<h3><a href="#">{$lang.workwwithdp}</a></h3>
 <div>
 <table>
 <form method="post">
 	<tr>
-		<td>id монстра</td>
+		<td>{$lang.monsterid}</td>
 		<td><input type="text" name='mobid' class="sText" value="{if isset($smarty.post.mobid)}{$smarty.post.mobid}{/if}"/></td>
 		<td><input type='submit' class='editbtn1 butDef' value='{$lang.search}'></td>
 	</tr>
 </form>
 <form method="post">
 	<tr>
-		<td>id предмета</td>
+		<td>{$lang.iditem}</td>
 		<td><input type="text" name='itemid' class="sText" value="{if isset($smarty.post.itemid)}{$smarty.post.itemid}{/if}"/></td>
 		<td><input type='submit' class='editbtn1 butDef' value='{$lang.search}'></td>
 	</tr>
@@ -139,38 +140,38 @@ function edit_form(item_id){
 </table>
 
 </div>
-<h3><a href="#">Добавить новое поле</a></h3>
+<h3><a href="#">{$lang.addnewrow}</a></h3>
 <div>
 <form method="post">
 <input type="hidden" name="action" value="add">
 <table>
 <tr>
-	<td>Id монстра</td>
+	<td>{$lang.monsterid}</td>
 	<td><input type="text" name='mobid' class="sText"/></td>
 
 </tr>
 <tr>
-	<td>Id предмета</td>
+	<td>{$lang.iditem}</td>
 	<td><input type="text" name='itemid' class="sText"/></td>
 
 </tr>
 
 <tr>
-	<td>Минимальное выпадание предмета</td>
+	<td>{$lang.dlminchance}</td>
 	<td><input type="text" name='min' class="sText" value="0"/></td>
 </tr>
 <tr>
-	<td>Максимальное выпадание предмета</td>
+	<td>{$lang.dlmaxchance}</td>
 	<td><input type="text" name='max' class="sText"/></td>
 
 </tr>
 <tr>
-	<td>Шанс выпадание предмета</td>
+	<td>{$lang.dlchance}</td>
 	<td><input type="text" name='chance' class="sText" value="0.05"/></td>
 
 </tr>
 </table>
-	<input type='submit' value='Добавить' class='editbtn1 butDef'>
+	<input type='submit' value='{$lang.add}' class='editbtn1 butDef'>
 
 </form>
 </div>

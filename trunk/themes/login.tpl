@@ -47,7 +47,7 @@
 			<div class="fields">
 				<p class="sep{if (isset($error) && $error !== '')} error{/if}">
 					<label class="small" for="user01">{$lang.login}</label>
-					<input type="text" value="{if isset($smarty.post.login)}{$smarty.post.login}{/if}" name='login' class="sText" id="login"/>
+					<input type="text" value="{if isset($smarty.post.login)}{$smarty.post.login}{/if}" name='login' autofocus autocomplete="off" class="sText" id="login"/>
 				</p>
 				
 				<p class="sep{if (isset($error) && $error !== '')} error{/if}">

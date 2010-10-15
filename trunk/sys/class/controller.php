@@ -1,9 +1,9 @@
 <?php  
 /* ------------------------------------------------------------------------
 
- * Aion Control Panel [Professional Version]
+ * Aion Control Panel [FreeWare Version]
  *
- * @version 1.1
+ * @version 1.1.2
  * @author NetSoul (FDCore main Developer)
  * @link http://www.fdcore.ru
  *
@@ -21,9 +21,9 @@
 define('VOID', 'javascript:void(0);');
 
 if(defined('PRO'))
-	define('AIONCP_VERSION','AionCP&trade; 1.1 Professional');
+	define('AIONCP_VERSION','AionCP&trade; 1.1.2b Professional');
 else
-	define('AIONCP_VERSION','AionCP&trade; 1.1 Freeware');
+	define('AIONCP_VERSION','AionCP&trade; 1.1.2b Freeware');
 	
 if(!defined('CORE')) exit('hacking attept!');
 
@@ -42,7 +42,7 @@ class aioncp
 	public $tpl; // smarty
 	private $const_db='';
     private static $instance=NULL;
-	private $SQLDB=SQLDB;
+	//private $SQLDB=SQLDB; //for future
 	
     	
 	function aioncp()
@@ -136,9 +136,12 @@ class aioncp
                 // выбор гейм сервера
                 if (!$r=@mysql_select_db($_POST['gs'])) 
                         throw new Exception($L['congs']);
+                
+                $en_key='';
                  
 				if(isset($_POST['encrypt'])){
 					$encrypt='TRUE';
+					
 					if(isset($_POST['en_key']))
 						$en_key=$_POST['en_key'];
 					else 
@@ -200,6 +203,8 @@ define('ALLOW_ACL', $acl);
 define('ENCRYPT', $encrypt);
 define('ENCRYPT_KEY', '$en_key');";
 
+				if(!is_dir(USER_PATH)) @mkdir(USER_PATH);
+				if(!is_dir(CACHE_PATH)) @mkdir(CACHE_PATH);
                 file_put_contents(CORE,$file);
 				copy(LANG_PATH.$_SESSION['lang'].DIRECTORY_SEPARATOR.'markdown.md',CONF_PATH.'note.txt');
                 @header('location: index.php');
@@ -850,7 +855,12 @@ define('ENCRYPT_KEY', '$en_key');";
   				list($count_offline)=$this->db->sql_fetchrow($result);
 	  			$this->table->add_row($L['offline'],$this->b($count_offline));
 
-	  			$gapi1=$this->chart("$count_online,$count_offline",
+				$_total		=	$count_online+$count_offline;
+				$_perprocent=	round($_total/100);
+				$_count_online=round($count_online/$_perprocent);
+				$_count_offline=round($count_offline/$_perprocent);
+				
+	  			$gapi1=$this->chart("$_count_online,$_count_offline",
 	  				sprintf($L['onoff'],$count_online,$count_offline),$L['curronline']);
 	  			$this->table->add_row($gapi1);
 
@@ -941,9 +951,20 @@ define('ENCRYPT_KEY', '$en_key');";
 		
 		   		$result=$this->db->sql_query("SELECT COUNT(*) AS count FROM  `players`");
 		  		list($CountAllPlayers)=$this->db->sql_fetchrow($result);
-  				$gapi1=$this->chart("$count_active,$count_unactive",sprintf($L['actdeac'],$count_active,$count_unactive),$L['accounts']);
-  				$CMP=round(($CountAllPlayers-$CountMalePlayers)/100);
-  				$CFP=round(($CountAllPlayers-$CountFemalePlayers)/100);
+		  		
+		  		$_total=$count_active+$count_unactive;
+		  		
+ 				$_perprocent=	round($_total/100);
+				$_count_active=round($count_active/$_perprocent);
+				$_count_unactive=round($count_unactive/$_perprocent);
+						  		
+  				$gapi1=$this->chart("$_count_active,$_count_unactive",sprintf($L['actdeac'],$count_active,$count_unactive),$L['accounts']);
+ 				
+ 				
+ 				$_perprocent=	round($CountAllPlayers/100);
+				$CMP=round($CountMalePlayers/$_perprocent);
+				$CFP=round($CountFemalePlayers/$_perprocent);
+  				
 	  			$gapi2=$this->chart("$CMP,$CFP",sprintf($L['sexchart'],$CountMalePlayers,$CountFemalePlayers),$L['sex']);
   				$this->table->add_row($gapi1);
 	 			$this->table->add_row($gapi2);
@@ -1090,6 +1111,20 @@ echo $js;
 		 				$this->tpl->assign('player_title',helper::GetTitle($row2['title_id']));		
 		 			} else $this->tpl->assign('player_title','');
 		 		
+		 		//check own legin
+		 		$result=$this->db->sql_query("SELECT * 
+				FROM legion_members AS lm
+				RIGHT JOIN legions l ON ( lm.legion_id = l.id ) 
+				WHERE lm.player_id = ".$row['id']);
+		 		
+	 			if ($this->db->sql_numrows($result) > 0) {  
+	 				
+	 				$legion=$this->db->sql_fetchrow($result);
+	 				$this->tpl->assign('legion',$legion);	
+	 					
+	 			} else $this->tpl->assign('legion','');
+
+		 			
 				$this->tpl->assign('ajax',(bool)isset($_GET['ajax']));
 				
 				if (isset($_GET['ajax'])) 
@@ -1357,7 +1392,6 @@ echo $js;
   		if(!function_exists('sqlite_query')) return $this->lang['liberror'];
   		
   		$login=$_SESSION['login'];
-  		//@TODO need cache this 
   		
   		if($list=$this->cache->get("bookmark_$login",1))
   			return $list;
@@ -1764,7 +1798,7 @@ JS;
 			
 			if(isset($_GET['loc'])){
 				
-				if (is_numeric($_GET['loc'])) {
+				if (is_numeric($_GET['loc']) && $_GET['loc'] >= 0) {
 					$_where.="AND itemLocation=".intval($_GET['loc']);
 				}
 				
@@ -1791,12 +1825,14 @@ JS;
                         $this->get_item_name($itemId),$itemCount,($isEquiped)?$L['y']:$L['n'],$action);
 			}
 			
-			$result=$this->db->sql_query("SELECT DISTINCT itemLocation FROM inventory");
-			$_loc='Размещение предмета: ';
-			$_loc.="<a href='?action=items&char_id=$char_id' class='butPage'>Все</a>&nbsp;&nbsp;";
+			$result=$this->db->sql_query("SELECT DISTINCT itemLocation FROM inventory WHERE itemOwner=$char_id");
+			$_loc=$this->lang['itemplace'];
+			$_loc.="<a href='?action=items&char_id=$char_id' class='butPage'>".$this->lang['all']."</a>&nbsp;&nbsp;";
+			
 			while (list($itemLocation)=$this->db->sql_fetchrow($result)){
 				$_loc.="<a href='?action=items&char_id=$char_id&loc=$itemLocation' class='butPage'>$itemLocation</a>&nbsp;&nbsp;";
 			}
+			
 			return $return.$_loc.$this->table->generate();
 		} else {
 			return $this->item_finder();
@@ -1956,7 +1992,12 @@ private function construct(){
 						
 						if(!strstr($query,'LIMIT') && $q['type']=='select') {
 							$_query=$query;
-							$query=$query.' LIMIT 0, 50';
+							// если кто то влепил бл* ";"
+							if(strstr($query,';')) {
+								
+								$query=str_replace(';',' LIMIT 0, 50;',$query);
+								
+							} else $query=$query.' LIMIT 0, 50';
 						}
 								
                         // подключаемся к бд
@@ -2059,7 +2100,11 @@ private function construct(){
  
 								$this->tpl->assign('result',$this->table->generate().$pagination); 
 								                     
-	                        }  else $this->tpl->assign('result',$L['no_result']); 
+	                        }  else {
+	                        	$error=mysql_error();
+	                        	if($error!=='') $error='<br><b>Error: </b>'.$error;
+	                        	$this->tpl->assign('result',$L['no_result'].$error); 
+	                        }
 	                        
                        
                         }
@@ -2249,7 +2294,7 @@ private function construct(){
 	
 	if(!file_exists("$file_name.db")){
 	// create database
-		$this->itemsdb= new SQLiteDatabase2("$file_name.db",0666,$error) or dir("Ошибка: $error");
+		$this->itemsdb= new SQLiteDatabase("$file_name.db",0666,$error) or dir("Error: $error");
 		$this->itemsdb->query("CREATE TABLE items ( serial INT NOT NULL PRIMARY KEY , id INT NOT NULL , name TEXT NOT NULL );");
 		if(file_exists("{$file_name}.xml"))
         {
@@ -2266,7 +2311,7 @@ private function construct(){
 		}
        }
 	} else{
-		$this->itemsdb= new $this->SQLDB("$file_name.db",0666,$error) or dir("Error: $error");
+		$this->itemsdb= new SQLiteDatabase("$file_name.db",0666,$error) or dir("Error: $error");
 	}//file_exists
 	
 	}//isset
@@ -2277,7 +2322,7 @@ private function construct(){
         if($ItemName){
             return($ItemName);
         } else{
-            return $L['erritem'];
+            return $L['erritem'] .$id;
         }
 	}
 
@@ -2514,23 +2559,28 @@ FILE;
 	
 	
 	function itemlist(){
+		
 		if (isset($_SESSION['lang'])) {
 			$file_name=LANG_PATH.$_SESSION['lang'].DIRECTORY_SEPARATOR.$_SESSION['lang']."_items";
 		} else $file_name=LANG_PATH.DEFAULT_LANG.DIRECTORY_SEPARATOR.DEFAULT_LANG."_items";
 		
+		
+		
 		$L = & $this->lang; // link
 		
 		// check db file
-		if(!isset($this->itemsdb)) $this->itemsdb= new $this->SQLDB("$file_name.db",0666,$error) or dir("Error: $error");
+		if(!isset($this->itemsdb)) $this->itemsdb= new SQLiteDatabase("$file_name.db",0666,$error) or die("Error: $error");
 		
-		if(isset($_GET['page']) && is_numeric($_GET['page'])) $result=$this->itemsdb->query("SELECT * FROM items LIMIT ".($_GET['page']*50).",50");
-		
+		if(isset($_GET['page']) && is_numeric($_GET['page'])) 
+		{	
+			$result=$this->itemsdb->query("SELECT * FROM items LIMIT ".($_GET['page']*50).",50");
+		}
 			else {
 				if(isset($_POST['searchname']) && strlen($_POST['searchname']) > 2){
 					
 					//todo need secure
 					$searchname=$_POST['searchname'];
-					$result=$this->itemsdb->query("SELECT * FROM items WHERE name LIKE '%$searchname%' OR name LIKE '$searchname%' OR name LIKE '%$searchname'");
+					$result=$this->itemsdb->query("SELECT * FROM items WHERE name LIKE '%$searchname%' OR name LIKE '$searchname%' OR name LIKE '%$searchname' OR id='$searchname'");
 					$b64q=base64_encode($searchname);
 					
 				} else $result=$this->itemsdb->query("SELECT * FROM items LIMIT 0,50");
@@ -2542,9 +2592,10 @@ FILE;
                     'row_start'           => '<tr style="background:#E9E9E9">',
                     'row_alt_start'       => '<tr style="background:#F8F8F8">',
          );
+         
         $this->table->set_template($tmpl);
         $this->table->set_heading('id','Имя');
-        		
+       	
 		if($result->numRows() > 0 ){
 			while($row=$result->fetch()){
 				$this->table->add_row($row['id'],$row['name']);
