@@ -1,9 +1,9 @@
 <?php  
 /* ------------------------------------------------------------------------
 
- * Aion Control Panel [FreeWare Version]
+ * Aion Control Panel [Professional Version]
  *
- * @version 1.1.2
+ * @version 1.1
  * @author NetSoul (FDCore main Developer)
  * @link http://www.fdcore.ru
  *
@@ -21,9 +21,9 @@
 define('VOID', 'javascript:void(0);');
 
 if(defined('PRO'))
-	define('AIONCP_VERSION','AionCP&trade; 1.1.2b Professional');
+	define('AIONCP_VERSION','AionCP&trade; 1.1 Professional');
 else
-	define('AIONCP_VERSION','AionCP&trade; 1.1.2b Freeware');
+	define('AIONCP_VERSION','AionCP&trade; 1.1 Freeware');
 	
 if(!defined('CORE')) exit('hacking attept!');
 
@@ -136,12 +136,9 @@ class aioncp
                 // выбор гейм сервера
                 if (!$r=@mysql_select_db($_POST['gs'])) 
                         throw new Exception($L['congs']);
-                
-                $en_key='';
                  
 				if(isset($_POST['encrypt'])){
 					$encrypt='TRUE';
-					
 					if(isset($_POST['en_key']))
 						$en_key=$_POST['en_key'];
 					else 
@@ -203,8 +200,6 @@ define('ALLOW_ACL', $acl);
 define('ENCRYPT', $encrypt);
 define('ENCRYPT_KEY', '$en_key');";
 
-				if(!is_dir(USER_PATH)) @mkdir(USER_PATH);
-				if(!is_dir(CACHE_PATH)) @mkdir(CACHE_PATH);
                 file_put_contents(CORE,$file);
 				copy(LANG_PATH.$_SESSION['lang'].DIRECTORY_SEPARATOR.'markdown.md',CONF_PATH.'note.txt');
                 @header('location: index.php');
@@ -1524,6 +1519,93 @@ echo $js;
 					}		
 					// проверка персонажа или id    
 					$char_id=FALSE;
+					
+					if (isset($_POST['name']) && $_POST['name']!=='') {
+						$char_id=$this->get_serial($this->secure($_POST['name']));
+						
+					}elseif (isset($_POST['char_id']) && $_POST['char_id']!=='') {
+						$char_id=intval($_POST['char_id']);
+					}	else {
+						throw new Exception($L['err_not_idorname']);		
+					}		 
+					 if (!$char_id) {
+					 	throw new Exception($L['char_id_nf']);
+					 	
+					 }
+					if ($this->is_online($char_id)) {
+						throw new Exception($L['charidgame']);
+					}
+					
+					$eqiped=0;   
+					
+					if (isset($_POST['eqip'])) {
+						$eqiped=intval($_POST['eqip']);
+					}
+					
+					// construct:
+					// $eqiped
+					// $count   - count items
+					//$char_id - id characters
+					$slot			=	intval($_POST['slot']);  // slot in db? 
+					$item_id		=	intval($_POST['id']); // item number
+					
+					if (!$item_id || !$char_id || !$count) {
+						throw new Exception("Critical error!");
+						
+					}
+					// connecting to game server
+					include(CONF);          
+					$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
+				
+					$update_query="UPDATE inventory SET itemCount=itemCount+$count WHERE itemOwner='$char_id' AND itemId='$item_id' LIMIT 1";
+					$insert_query="INSERT INTO inventory (itemCount,itemOwner,itemId) VALUES($count,$char_id,'$item_id')";	
+								
+					if ($count > 1) {    
+						// есть чО?      
+						$res=$this->db->sql_query("SELECT * FROM inventory WHERE itemOwner='$char_id' AND itemId='$item_id' LIMIT 1"); 
+						if ($this->db->sql_numrows($res)  > 0) { 
+							// чОтО есть  
+						  $this->db->sql_query($update_query);
+						}  else {   
+							// нет никуя
+						  $this->db->sql_query($insert_query);
+						}
+						// даём без проверок						
+					} else {
+						 $this->db->sql_query($insert_query); 
+					}
+					
+					
+					$message[]=$L['itemadded']; 
+				} catch (Exception $e) {
+					$message[]=$e->getMessage(); 
+				}
+      // end try  
+		}// end isset 
+			
+			$this->tpl->assign('message',$message);
+         	return $this->tpl->fetch('additems.tpl');
+		}  
+		
+		function smail()
+		{  
+			$L = & $this->lang;
+			                    
+			$this->title=$L['additemtitle'];                                                                               
+			$content='';     
+			$message=array();
+			
+			if (isset($_POST['id'])) { 
+				// start try checking
+				try {      
+					// проверка количества
+					if(isset($_POST['count'])){
+						  $count=intval($_POST['count']);
+						} else {
+						 throw new Exception($L['errcount']);
+					}		
+					// проверка персонажа или id    
+					$char_id=FALSE;
 					if (isset($_POST['name']) && $_POST['name']!=='') {
 						$char_id=$this->get_serial($this->secure($_POST['name']));
 					}elseif (isset($_POST['char_id']) && $_POST['char_id']!=='') {
@@ -1538,7 +1620,9 @@ echo $js;
 					if ($this->is_online($char_id)) {
 						throw new Exception($L['charidgame']);
 					}
+					
 					$eqiped=0;   
+					
 					if (isset($_POST['eqip'])) {
 						$eqiped=intval($_POST['eqip']);
 					}
@@ -1557,10 +1641,12 @@ echo $js;
 					$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
 				
 					$update_query="UPDATE inventory SET itemCount=itemCount+$count WHERE itemOwner='$char_id' AND itemId='$item_id' LIMIT 1";
+					$insert_query="INSERT INTO inventory (itemCount,itemOwner,itemId) VALUES($count,$char_id,'$item_id')";	
 											
 					if ($count > 1) {    
 						// есть чО?      
 						$res=$this->db->sql_query("SELECT * FROM inventory WHERE itemOwner='$char_id' AND itemId='$item_id' LIMIT 1"); 
+						
 						if ($this->db->sql_numrows($res)  > 0) { 
 							// чОтО есть  
 						  $this->db->sql_query($update_query);
