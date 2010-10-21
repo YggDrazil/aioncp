@@ -21,9 +21,9 @@
 define('VOID', 'javascript:void(0);');
 
 if(defined('PRO'))
-	define('AIONCP_VERSION','AionCP&trade; 1.1 Professional');
+	define('AIONCP_VERSION','AionCP&trade; 1.2 Professional');
 else
-	define('AIONCP_VERSION','AionCP&trade; 1.1 Freeware');
+	define('AIONCP_VERSION','AionCP&trade; 1.2 Freeware');
 	
 if(!defined('CORE')) exit('hacking attept!');
 
@@ -1589,8 +1589,7 @@ echo $js;
 		
 		function smail()
 		{  
-			$L = & $this->lang;
-			                    
+			$L = & $this->lang;               
 			$this->title=$L['additemtitle'];                                                                               
 			$content='';     
 			$message=array();
@@ -1668,7 +1667,7 @@ echo $js;
 		}// end isset 
 			
 			$this->tpl->assign('message',$message);
-         	return $this->tpl->fetch('additems.tpl');
+         	return $this->tpl->fetch('smail.tpl');
 		}  
 // ------------------------------------------------------------------------ 		       
 		/**
