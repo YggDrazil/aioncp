@@ -21,9 +21,9 @@
 define('VOID', 'javascript:void(0);');
 
 if(defined('PRO'))
-	define('AIONCP_VERSION','AionCP&trade; 1.2 Professional');
+	define('AIONCP_VERSION','AionCP&trade; 1.1 Professional');
 else
-	define('AIONCP_VERSION','AionCP&trade; 1.2 Freeware');
+	define('AIONCP_VERSION','AionCP&trade; 1.1 Freeware');
 	
 if(!defined('CORE')) exit('hacking attept!');
 
@@ -47,9 +47,11 @@ class aioncp
     	
 	function aioncp()
 	{
+		ob_start(); // invisible symbol fix
+		
 		$this->tpl		=	new Smarty;
 		$this->table	=	new Table;
-
+		
 		$this->tpl->template_dir =TPL_DIR; # Путь корневой папки с шаблонами
 		$this->tpl->compile_dir = SYSTEM_PATH.'compiled/'; # Путь папки с компиляциями шаблонов
 		$this->tpl->cache_dir = CACHE_PATH; # Путь до папки кеша.
@@ -75,7 +77,7 @@ class aioncp
 		self::$instance=$this;
 		
 		$this->cache	=	new Cache();
-
+		ob_end_clean(); // invisible symbol fix end
 	} 
 	/**
 	 * Install AdminCP
@@ -262,7 +264,7 @@ define('ENCRYPT_KEY', '$en_key');";
       if (file_exists($path)) {
          
          include($path);
-
+		 
          $this->lang=$lang;
 
          $this->tpl->assign('lang',$this->lang);
@@ -533,7 +535,9 @@ define('ENCRYPT_KEY', '$en_key');";
   		$this-> check_logins();
   		
   		$ACT=$this->secure($ACT);
+  		
   		if(substr($ACT,0,1)=='_') return 'Access attept!';
+  		
   		switch ($ACT) {
   			case 'logout':
   				session_destroy();
@@ -1589,7 +1593,8 @@ echo $js;
 		
 		function smail()
 		{  
-			$L = & $this->lang;               
+			$L = & $this->lang;
+			                    
 			$this->title=$L['additemtitle'];                                                                               
 			$content='';     
 			$message=array();
@@ -2139,6 +2144,9 @@ private function construct(){
 			                        		LIMIT 0, 50
 			                        		
 			                        	*/
+			                        	
+			                        	if(strstr($_query,';')) $_query=str_replace(';',' ',$_query);
+			                        	
 			                        	if(strstr($_query,'ORDER') && $q==''){
 
 											// order sorting
