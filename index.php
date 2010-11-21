@@ -1,9 +1,9 @@
 <?php
 /* ------------------------------------------------------------------------
 
- * Aion Control Panel [FreeWare Version]
+ * Aion Control Panel [Professional Version]
  *
- * @version 1.1.2
+ * @version 1.1
  * @author NetSoul (FDCore main Developer)
  * @link http://www.fdcore.ru
  *
@@ -25,6 +25,8 @@ if(!defined('DOMAIN')){
 	define("DOMAIN",'AionCP');
 	define("SYSTEM_PATH",ROOT.'sys/');
 	define("USER_PATH",ROOT.'app/');
+	define("TPL_DIR",'themes/');
+	define("TPL_URL",'themes/');
 	@session_name('aioncp_free');
 	
 } else{

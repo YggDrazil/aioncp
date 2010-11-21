@@ -32,9 +32,8 @@ class Cache{
 
 		if ( ! is_dir($this->config['directory']) OR ! is_writable($this->config['directory']))
 		
-			if (file_exists(CONF)) {
-				exit('The configured cache directory, '.$this->config['directory'].', is not writable.');
-			}
+			$this->config['directory']=false;
+			//exit('The configured cache directory, '.$this->config['directory'].', is not writable.');
 	}
 
 	/**
@@ -46,6 +45,8 @@ class Cache{
 	 */
 	public function exists($keys, $tag = FALSE)
 	{
+		if(!$this->config['directory']) return FALSE;
+		
 		if ($keys === TRUE)
 		{
 			// Find all the files
@@ -105,6 +106,8 @@ class Cache{
 
 	public function set($items, $tags = NULL, $lifetime = NULL)
 	{
+		if(!$this->config['directory']) return FALSE;
+		
 		if ($lifetime !== 0)
 		{
 			// File driver expects unix timestamp
@@ -139,6 +142,9 @@ class Cache{
 
 	public function get($keys, $single = FALSE)
 	{
+		
+		if(!$this->config['directory']) return FALSE;
+		
 		$items = array();
 
 		if ($files = $this->exists($keys))

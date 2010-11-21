@@ -220,9 +220,17 @@ define('ENCRYPT_KEY', '$en_key');";
  	   	if (!function_exists('mysql_connect')) 			$error[]=$L['mysqlib'];
  	   	if (!function_exists('sqlite_open')) 			$error[]="No SQLite Lib";
  	   	if($memory_limit < 32) 							$error[]=$L['memlim'];
+ 	   	
  	   	if(!is_dir(CONF_PATH)){
  	   		@mkdir(CONF_PATH);
+ 	   		@chmod(CONF_PATH,0777);
  	   	}
+ 	   	// fix create 
+ 	   	if(!is_dir(CACHE_PATH)){
+ 	   		@mkdir(CACHE_PATH);
+ 	   		@chmod(CACHE_PATH,0777);
+ 	   	} 	   	
+ 	   	
         if (!@is_writable(CONF_PATH))                   $error[]=$L['ditectory'].CONF_PATH.$L['no_writable'];
         
         if (!function_exists('mcrypt_cbc')) 
@@ -678,9 +686,15 @@ define('ENCRYPT_KEY', '$en_key');";
 				$row=$this->db->sql_fetchrow($result);
 				//----------------- activated
 				if(isset($_POST['activated']) && $_POST['activated']!=='') 
-					$activated=$this->secure($_POST['activated']);
+					$activated=intval($_POST['activated']);
 						else $activated=0;
-				$this->db->sql_query("UPDATE account_data SET activated = '$activated' WHERE id=$char LIMIT 1;");		
+				$this->db->sql_query("UPDATE account_data SET activated = '$activated' WHERE id=$char LIMIT 1;");
+				
+				//----------------- membership
+				if(isset($_POST['membership']) && $_POST['membership']!=='') 
+					$membership=intval($_POST['membership']);
+						else $membership=0;
+				$this->db->sql_query("UPDATE account_data SET membership = '$membership' WHERE id=$char LIMIT 1;");						
 				
 				//----------------- password
 				if (isset($_POST['password']) && $_POST['password']!=='') {
@@ -2582,7 +2596,7 @@ FILE;
 			}  else {
 				return FALSE;
 			} 
-			$this->tpl->assign('name',$$name);
+			$this->tpl->assign('name',$name);
 								
     		$result	=	$this->db->sql_query("SELECT p.id,p.name,p.account_id,p.account_name FROM friends f,players p WHERE f.player=$char_id AND f.friend=p.id");
     		
