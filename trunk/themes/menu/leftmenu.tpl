@@ -94,7 +94,7 @@
 					<li>
 						<a href="javascript:void(0)">
 							<img src="{$smarty.const.TPL_URL}img/icons/servers.png" class="icon" alt="" />
-							Сервер
+							{$lang.server}
 							<span></span>
 						</a>
 						<ol class="clearfix">

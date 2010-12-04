@@ -19,13 +19,13 @@
 						</a>
 					</li>
 					<li>
-						<a href="#">
+						<a href="?action=legions">
 							<img src="{$smarty.const.TPL_URL}i/legions.png" />
 							{$lang.legions}
 						</a>
 					</li>
 					<li>
-						<a href="#">
+						<a href="?action=banip">
 							<img src="{$smarty.const.TPL_URL}i/blockip.png" />
 							{$lang.banip}
 						</a>
