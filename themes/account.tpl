@@ -29,8 +29,17 @@
 <p> 
 	<label for="name02" class="small">{$lang.active}</label> 
 	<input type="checkbox" {$active} name="activated" value="1">
-				
 </p>
+
+<p> 
+	<label for="membership" class="small">Membership</label>
+	<select name='membership' class="sSelect">
+		 		<option {if $row.membership == 0}selected="selected"{/if} value='0'>normal</option>
+		 		<option {if $row.membership == 1}selected="selected"{/if} value='1'>premium</option>
+		 		<option {if $row.membership == 2}selected="selected"{/if} value='2'>vip</option>
+	</select>	 		 		
+</p>
+
 <p> 
 	<label for="name02" class="small">{$lang.acl}</label> 
 	<input type="text" name='access_level' value="{$row.access_level}"  class="sText"/>

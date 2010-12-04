@@ -1,13 +1,15 @@
 <?php  
 /* ------------------------------------------------------------------------
 
- * Aion Control Panel [Professional Version]
+ * Aion Control Panel
  *
- * @version 1.1
+ * @version 1.2
  * @author NetSoul (FDCore main Developer)
  * @link http://www.fdcore.ru
+ * @license http://creativecommons.org/licenses/by-nc-sa/3.0/deed.ru
  *
  * http://code.google.com/p/aioncp/
+ * http://gameacp.ru/aioncp/
  *
  * @license http://fdcore.ru/license.html
 
@@ -21,9 +23,9 @@
 define('VOID', 'javascript:void(0);');
 
 if(defined('PRO'))
-	define('AIONCP_VERSION','AionCP&trade; 1.1 Professional');
+	define('AIONCP_VERSION','AionCP&trade; 1.2 Professional');
 else
-	define('AIONCP_VERSION','AionCP&trade; 1.1 Freeware');
+	define('AIONCP_VERSION','AionCP&trade; 1.2 Freeware');
 	
 if(!defined('CORE')) exit('hacking attept!');
 
@@ -591,14 +593,13 @@ define('ENCRYPT_KEY', '$en_key');";
   	{
 		$return='';
 		$total=50; // per page
+		$char='1=1'; 
+		$pagechar='';
+		$page_offset=0;
 		$L = & $this->lang;
 		$this->title=$L['menu_acclist'];
-		if($this->connect_db!=='gs') {
-			include(CONF);
-			$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);
-			$this->connect_db='gs';
-		}
-
+		
+		$this->connect_to_gs(); 
 	
 		// проверка наличия кеша
 		if(file_exists(CACHE_PATH."account_chars.cache")){
@@ -620,39 +621,39 @@ define('ENCRYPT_KEY', '$en_key');";
 
 		
 		//------------- QUERY BUILD----------------//
-		if (isset($_GET['C'])) {
+		if (isset($_GET['C']) && trim($_GET['C'])!=='') {
 			// account selected
 			$char=$this->secure($_GET['C']);
 			$pagechar=$this->secure($_GET['C']);
-			$char="WHERE account_name LIKE '$char%'";
-			
-			//pagination
-			if(isset($_GET['page'])){
-				$page_offset=(intval($_GET['page'])*$total);
-				$page_offset_q=" LIMIT $page_offset,$total";
-				
-			} else $page_offset_q="LIMIT 0 , $total";
-		} else {
-			$char=''; 
-			$pagechar='';
-			$page_offset_q="LIMIT 0 , $total";
+			$char="WHERE account_name LIKE '$char%' ";
 		}
 		
-		$result=$this->db->sql_query("SELECT name,account_name,account_id FROM `players` $char $page_offset_q");
+		//pagination
+		if(isset($_GET['page']))
+			$page_offset=(intval($_GET['page'])*$total);
+
+		// query constructor
+		$result=$this->db->select('name,account_name,account_id')->from('players')->where($char,false)->limit($page_offset,$total);
 					
 		// check num rows
-		if ($this->db->sql_numrows($result) > 0) {
-			$this->tpl->assign('rows',$this->db->sql_fetchrowset($result));
+		if ($result) {
+		
+			$this->tpl->assign('rows',$result->fetch_all());
+			
 		} else $this->tpl->assign('rows',FALSE);
+		
 		
 		// pagination
 		$page=(isset($_GET['page']))?intval($_GET['page']):1;
 		// get total rows
-		$result=$this->db->sql_query("SELECT null FROM `players` $char");
-		$pagination=helper::pagination($this->db->sql_numrows($result),'?action=accounts&C='.$pagechar.'&page=',$total,5,$page);
+		
+		$res=$this->db->select('COUNT(*) as total',FALSE)->from('players')->where($char,false)->fetch_row();
+
+		$pagination=helper::pagination($res['total'],'?action=accounts&C='.$pagechar.'&page=',$total,5,$page);
 		
 		$this->tpl->assign('pagination',$pagination);
 		if (isset($_GET['ajax'])) exit($this->tpl->fetch('accounts_list.tpl'));
+		
 		$return.=$this->tpl->fetch('accounts_list.tpl');
 		return $return;
   	}
@@ -869,9 +870,16 @@ define('ENCRYPT_KEY', '$en_key');";
 	  			$this->table->add_row($L['offline'],$this->b($count_offline));
 
 				$_total		=	$count_online+$count_offline;
-				$_perprocent=	round($_total/100);
-				$_count_online=round($count_online/$_perprocent);
-				$_count_offline=round($count_offline/$_perprocent);
+				
+				if($_total > 100){
+					$_perprocent=	round($_total/100);
+					$_count_online=round($count_online/$_perprocent);
+					$_count_offline=round($count_offline/$_perprocent);				
+				} else {
+					$_count_online=round($count_online);
+					$_count_offline=round($count_offline);				
+				}
+
 				
 	  			$gapi1=$this->chart("$_count_online,$_count_offline",
 	  				sprintf($L['onoff'],$count_online,$count_offline),$L['curronline']);
@@ -967,16 +975,27 @@ define('ENCRYPT_KEY', '$en_key');";
 		  		
 		  		$_total=$count_active+$count_unactive;
 		  		
- 				$_perprocent=	round($_total/100);
-				$_count_active=round($count_active/$_perprocent);
-				$_count_unactive=round($count_unactive/$_perprocent);
+		  		if($_total > 100){
+ 					$_perprocent=	round($_total/100);
+					$_count_active=round($count_active/$_perprocent);
+					$_count_unactive=round($count_unactive/$_perprocent);		  		
+		  		} else {
+					$_count_active=round($count_active);
+					$_count_unactive=round($count_unactive);		  		
+		  		}
+
 						  		
   				$gapi1=$this->chart("$_count_active,$_count_unactive",sprintf($L['actdeac'],$count_active,$count_unactive),$L['accounts']);
  				
- 				
- 				$_perprocent=	round($CountAllPlayers/100);
-				$CMP=round($CountMalePlayers/$_perprocent);
-				$CFP=round($CountFemalePlayers/$_perprocent);
+ 				if($CountAllPlayers > 100){
+  					$_perprocent=	round($CountAllPlayers/100);
+					$CMP=round($CountMalePlayers/$_perprocent);
+					$CFP=round($CountFemalePlayers/$_perprocent);				
+ 				} else {
+ 					$CMP=round($CountMalePlayers);
+					$CFP=round($CountFemalePlayers);				
+ 				}
+
   				
 	  			$gapi2=$this->chart("$CMP,$CFP",sprintf($L['sexchart'],$CountMalePlayers,$CountFemalePlayers),$L['sex']);
   				$this->table->add_row($gapi1);
@@ -1794,7 +1813,7 @@ JS;
 		$pagination=helper::pagination($this->db->sql_numrows($result),'?action=charlist&C='.$pagechar.'&page=',$total,5,$page);
 		
 		$this->tpl->assign('pagination',$pagination);
-		if (isset($_GET['ajax'])) exit($this->tpl->fetch('charlist.tpl'));
+		if (isset($_GET['ajax']) && $_GET['ajax']==1) exit($this->tpl->fetch('charlist.tpl'));
 		$return.=$this->tpl->fetch('charlist.tpl');
 		return $return;		
 	}
@@ -2670,8 +2689,7 @@ FILE;
 		if (isset($_SESSION['lang'])) {
 			$file_name=LANG_PATH.$_SESSION['lang'].DIRECTORY_SEPARATOR.$_SESSION['lang']."_items";
 		} else $file_name=LANG_PATH.DEFAULT_LANG.DIRECTORY_SEPARATOR.DEFAULT_LANG."_items";
-		
-		
+		 
 		
 		$L = & $this->lang; // link
 		
@@ -2726,6 +2744,181 @@ FILE;
 		else return $this->tpl->fetch('itemlist.tpl');
 		
 
+	}
+	
+	function connect_to_ls(){
+	
+		include(CONF);
+		
+		if(ENCRYPT){
+			$enc=new Encrypt;
+			$enc->set_key(ENCRYPT_KEY);
+			$db_host		=$enc->decode($db_host);
+			$db_login		=$enc->decode($db_login);
+			$db_password	=$enc->decode($db_password);
+			$db_login_server		=$enc->decode($db_login_server);
+		}
+				
+		if(isset($this->db) && $db_game_server==$db_login_server) return TRUE;
+		
+		include CLASS_PATH . 'crystal/Crystal.php';
+		
+		$db_config = array(	
+								'hostname'=>$db_host,
+                                'username' => $db_login,
+                                'password'=> $db_password,
+                                'database' => $db_login_server,
+                                'driver' => 'mysql'
+                                ); 
+
+		$this->db = Crystal::db($db_config);  	
+	}
+	
+	function connect_to_gs(){
+	
+		include(CONF);
+		
+		if(ENCRYPT){
+			$enc=new Encrypt;
+			$enc->set_key(ENCRYPT_KEY);
+			$db_host		=$enc->decode($db_host);
+			$db_login		=$enc->decode($db_login);
+			$db_password	=$enc->decode($db_password);
+			$db_game_server		=$enc->decode($db_game_server);
+		}
+				
+		if(isset($this->db) && $db_game_server==$db_login_server) return TRUE;
+		
+		include CLASS_PATH . 'crystal/Crystal.php';
+		
+		$db_config = array(	
+								'hostname'=>$db_host,
+                                'username' => $db_login,
+                                'password'=> $db_password,
+                                'database' => $db_game_server,
+                                'driver' => 'mysql'
+                                ); 
+
+		$this->db = Crystal::db($db_config);  	
+	}
+	
+	function legions(){
+		include(CONF);
+		
+		$this->db		= new sql_db($db_host, $db_login, $db_password, $db_game_server);
+		
+		if(isset($_GET['sortby'])){
+			
+			if(isset($_GET['orderby'])){
+				if($_GET['orderby']=='desc') $ORDER='DESC';
+				if($_GET['orderby']=='asc') $ORDER='ASC';
+			} else $ORDER='DESC';
+			
+			if($_GET['sortby']=='name')
+				$result=$this->db->sql_query("SELECT * FROM legions ORDER BY name $ORDER");
+			if($_GET['sortby']=='level')
+				$result=$this->db->sql_query("SELECT * FROM legions ORDER BY level $ORDER");
+			if($_GET['sortby']=='point')
+				$result=$this->db->sql_query("SELECT * FROM legions ORDER BY contribution_points $ORDER");
+
+		} else $result=$this->db->sql_query("SELECT * FROM legions");
+		
+		
+		$legions=array();
+		
+		if ($this->db->sql_numrows($result) > 0) { 
+			while ($row=$this->db->sql_fetchrow($result)) {
+				$r=$this->db->sql_query(sprintf("SELECT count(*) as cnt FROM legion_members WHERE legion_id=%d",$row['id']));
+				$m=$this->db->sql_fetchrow($r);
+				$row['chars']=$m['cnt'];
+				$legions[]=$row;
+			}		
+		
+			$this->tpl->assign('legions',$legions);
+		}
+		return $this->tpl->fetch('legions.tpl');
+	}
+	
+	
+	function legion(){
+		
+		if(isset($_GET['id'])){
+			include(CONF);
+			$id=intval($_GET['id']);
+			$member_list=array();
+			$this->db		= new sql_db($db_host, $db_login, $db_password, $db_game_server);	
+
+			if(isset($_GET['char_id'])){
+				//delete char
+				$this->db->sql_query(sprintf('DELETE FROM legion_members WHERE player_id=%d AND legion_id=%d',$_GET['char_id'],$id));
+				exit("$('.del_".$_GET['char_id']."').hide(); alert('Персонаж удалён из гильдии.')");
+			
+			}
+			
+			if(isset($_POST['addname'])){
+				
+				$addname=$this->secure($_POST['addname']);
+				
+				try {
+					$result=$this->db->sql_query(sprintf("SELECT * FROM players WHERE name='%s'",$addname));
+					
+					if ($this->db->sql_numrows($result) == 0)
+						throw new Exception('Персонаж не найден.');
+						
+					$row=$this->db->sql_fetchrow($result);
+					$char_id=$row['id'];
+				
+					$result=$this->db->sql_query(sprintf('SELECT * FROM legion_members as lm,legions as l WHERE lm.player_id=%d AND lm.legion_id=l.id LIMIT 1',$char_id));
+					
+					if ($this->db->sql_numrows($result) > 0) {
+						$row=$this->db->sql_fetchrow($result);
+						throw new Exception(sprintf('Персонаж уже состоит в гильдии %s.',$row['name']));
+					}
+					
+					$result=$this->db->sql_query(sprintf('INSERT INTO legion_members (legion_id,player_id) VALUES(%d,%d)',$id,$char_id));
+					$this->tpl->assign('success','Персонаж добавлен в гильдию.');
+					
+				} catch (Exception $e) {
+					$this->tpl->assign('error',$e->getMessage());
+				}
+
+			}			
+			
+			//edit legion
+			if(isset($_POST['name'])){
+				
+				$name=$this->secure($_POST['name']);
+				$level=intval($_POST['level']);
+				$contribution_points=intval(round($_POST['contribution_points']));
+	
+				if($name && $level >=0 && $contribution_points >=0){
+					$result=$this->db->sql_query(sprintf("UPDATE legions SET name='%s', level=%d, contribution_points=%d WHERE id=%d",$name,$level,$contribution_points,$id));
+					$this->tpl->assign('success','Данные гильдии обновлены.');
+				}
+			}
+			
+			//get legion info
+			$result=$this->db->sql_query(sprintf("SELECT * FROM legions WHERE id=%d",$id));
+			
+			if ($this->db->sql_numrows($result) > 0) {
+				$legion_info=$this->db->sql_fetchrow($result);
+				$this->tpl->assign('legion_info',$legion_info);
+				// get members list
+				$result=$this->db->sql_query(sprintf('SELECT * FROM legion_members as l LEFT JOIN players p ON (l.player_id=p.id) WHERE l.legion_id=%d',$id));
+
+				if ($this->db->sql_numrows($result) > 0) {
+					while ($row=$this->db->sql_fetchrow($result)) {
+						$member_list[]=$row;
+					}
+					
+					$this->tpl->assign('member_list',$member_list);
+				}
+				
+			}
+			
+			
+			return $this->tpl->fetch('legion.tpl');
+		}
 	}
 // ------------------------------------------------------------------------
   	/*

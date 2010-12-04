@@ -7,19 +7,19 @@
 <table>
 	<tr>
 		<td>{$lang.search_account_name}</td>
-		<td><input type='search' results="10" class='sText' placeholder="Введите часть логина" name='account_search' id='account_search'></td>
+		<td><input type='search' results="10" class='sText' placeholder="{$lang.search_tooptip_login}" name='account_search' id='account_search'></td>
 	</tr>
 	<tr>
 		<td>{$lang.char_name}</td>
-		<td><input type='search' results="10" class='sText' placeholder="Введите начало ника" name='char_name' id='char_name'></td>
+		<td><input type='search' results="10" class='sText' placeholder="{$lang.search_tooptip_nik}" name='char_name' id='char_name'></td>
 	</tr>
 	<tr>
 		<td>{$lang.searchemail}</td>
-		<td><input type='search' results="10" class='sText' placeholder="Введите часть email"  name='email_search' id='email_search'></td>
+		<td><input type='search' results="10" class='sText' placeholder="{$lang.search_tooptip_email}"  name='email_search' id='email_search'></td>
 	</tr>
 	<tr>
 		<td>IP</td>
-		<td><input type='search' results="10" class='sText' placeholder="Введите начало IP" name='ip_search' id='ip_search'></td>
+		<td><input type='search' results="10" class='sText' placeholder="{$lang.search_tooptip_ip}" name='ip_search' id='ip_search'></td>
 	</tr>
 </table>
 <div id='ajax_result'></div>  		

@@ -1,13 +1,15 @@
 <?php
 /* ------------------------------------------------------------------------
 
- * Aion Control Panel [PreBeta Version]
+ * Aion Control Panel
  *
- * @version 1.1
+ * @version 1.2
  * @author NetSoul (FDCore main Developer)
  * @link http://www.fdcore.ru
+ * @license http://creativecommons.org/licenses/by-nc-sa/3.0/deed.ru
  *
  * http://code.google.com/p/aioncp/
+ * http://gameacp.ru/aioncp/
  *
  * @license http://fdcore.ru/license.html
 

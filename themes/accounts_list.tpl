@@ -24,13 +24,13 @@ $(document).ready(function(){
 {if isset($smarty.get.ajax)==FALSE}
 <form method="get">
 <input type="hidden" name="action" value="info" />
-<input type="text" name="char" class="sText" pattern="([0-9]+)" required placeholder="Введите номер аккаунта"  />
+<input type="text" name="char" class="sText" pattern="([0-9]+)" required placeholder="{$lang.search_tooptip_number}" title="{$lang.search_tooptip_number}" />
 <input type="submit" value="&rarr;"  class='butDef'/>
 </form>
 {/if}
 
 
-{if $rows==TRUE}
+{if count($rows) > 0}
 <div id='ajax'>
 <table border="0" cellpadding="4" cellspacing="5" class="uiTable">
 <thead >

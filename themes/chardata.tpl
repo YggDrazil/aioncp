@@ -49,7 +49,26 @@
 		 		<option value='21'>Fragment of Darkness 2</option>
 		 		<option value='22'>Sanctum Underground Arena</option>
 		 		<option value='23'>Indratu (Castle Indratu) </option>
-				<option value='20'>Altgard</option>
+
+				<option value='24'>Azoturan (Castle Lehpar)</option>
+				<option value='25'>Narsass</option>
+				<option value='26'>Narsass (not sure why there are two of these)</option>
+				<option value='27'>Bregirun (Abyss Gate)</option>
+				<option value='28'>Nidalber (Abyss Gate)</option>
+				<option value='29'>Inside of the Sky Temple of Arkanis</option>
+				<option value='30'>Space of Oblivion</option>
+				<option value='31'>Space of Destiny</option>
+				<option value='32'>Draupnir (central control room)</option>
+				<option value='33'>Draupnir  (beritra oracle chamber)</option>
+				<option value='34'>Triniel Underground Arena</option>
+				<option value='35'>Fire Temple</option>
+				<option value='36'>Alquimia</option>
+				<option value='37'>Secret Prison</option>
+				<option value='38'>Player Prison 1</option>
+				<option value='39'>Player Prison 2</option>
+				<option value='40'>Test Basic</option>
+				<option value='41'>Test Server</option>
+				<option value='42'>Test Giant Monster</option>
 		 		</select>
 		 			<input type='submit' name='teleport' class='editbtn1 butDef' value='{$lang.move}'>
 		 		
