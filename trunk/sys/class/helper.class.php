@@ -1,13 +1,15 @@
 <?php
 /* ------------------------------------------------------------------------
 
- * Free Control Panel for Aoin
+ * Aion Control Panel
  *
- * @version 1.0
- * @author NetSoul (FDCore main Developer )
+ * @version 1.2
+ * @author NetSoul (FDCore main Developer)
  * @link http://www.fdcore.ru
+ * @license http://creativecommons.org/licenses/by-nc-sa/3.0/deed.ru
  *
  * http://code.google.com/p/aioncp/
+ * http://gameacp.ru/aioncp/
  *
  * @license http://fdcore.ru/license.html
 
@@ -159,75 +161,75 @@ class helper {
 			case '28':
 				return(array('w'=>320040000,'x'=>269,'y'=>175,'z'=>204));
 				break;
-				/*
+				
 		//Inside of the Sky Temple of Arkanis 320050000 128 133 575
 		    case '29':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>320050000,'x'=>128,'y'=>133,'z'=>575));
 				break;
 		//Space of Oblivion - //moveto 320060000 1709 807 1226
 			case '30':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>320060000,'x'=>1709,'y'=>807,'z'=>1226));
 				break;
 
 		//Space of Destiny - //moveto 320070000 256 252 126
 			case '31':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>320070000,'x'=>256,'y'=>252,'z'=>126));
 				break;
 
 		//Draupnir - //moveto 320080000 493 600 513 (central control room)
 			case '32':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>320080000,'x'=>493,'y'=>600,'z'=>513));
 				break;
 
 		//Draupnir - //moveto 320080000 762 431 321 (beritra oracle chamber)
 			case '33':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>320080000,'x'=>762,'y'=>431,'z'=>321));
 				break;
 
 		//Triniel Underground Arena - //moveto 320090000 276 183 162
 			case '34':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>320090000,'x'=>276,'y'=>183,'z'=>162));
 				break;
 
 		//Fire Temple - //moveto 320100000 148 455 142
 			case '35':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>320100000,'x'=>148,'y'=>455,'z'=>142));
 				break;
 
 		//Alquimia - //moveto 320110000 545 527 200
 			case '36':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>320110000,'x'=>545,'y'=>527,'z'=>200));
 				break;
 
 		//Secret Prison - //moveto 320120000 454 553 225
 			case '37':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>320120000,'x'=>454,'y'=>553,'z'=>225));
 				break;
 
 		//Player Prison 1- //moveto 510010000 229 257 50
 			case '38':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>510010000,'x'=>229,'y'=>257,'z'=>50));
 				break;
 
 		//Player Prison 2- //moveto 520010000 229 257 50
 			case '39':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>520010000,'x'=>229,'y'=>257,'z'=>50));
 				break;
 
 		//Test Basic - //moveto 900020000 151 135 20
 			case '40':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>900020000,'x'=>151,'y'=>135,'z'=>20));
 				break;
 
 		//Test Server - //moveto 900030000 403 254 50
 			case '41':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
+				return(array('w'=>900030000,'x'=>403,'y'=>254,'z'=>50));
 				break;
 
 		//Test Giant Monster - //moveto 900100000 245 323 20
 			case '42':
-				return(array('w'=>,'x'=>,'y'=>,'z'=>));
-				break;	*/
+				return(array('w'=>900100000,'x'=>245,'y'=>323,'z'=>20));
+				break;	
 			default:
 				exit('teleport error');
 				break;

@@ -12,7 +12,7 @@
 <script>
 {literal}
  $(document).ready(function() {
-    $(".fields").accordion({
+    $(".droplistf").accordion({
 			autoHeight: false,
 			navigation: true
 		});
@@ -90,7 +90,7 @@ function edit_form(item_id){
 	<a class="close" title="Close"></a> 
 </div> 
 {/if}
-<div class="fields">
+<div class="fields droplistf">
 
 {if $rows && count($rows) > 0}
 <h3><a href="#">{$lang.itemlistbyidm}</a></h3>

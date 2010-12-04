@@ -30,10 +30,10 @@
 	<label for="name02" class="small">{$lang.name}</label> 
 	<input type="text" name='name' id='chname' value="{$row.name}"  class="sText"/>
 </p>
-{if $legion.name !==''}
+{if $legion.name !=='' and $legion.name}
 <p>
 	<label for="name02" class="small">{$lang.legion}</label> 
-	{$legion.name} (Lvl {$legion.level})
+	<a href="?action=legion&id={$legion.id}">{$legion.name}</a> ({$lang.level} {$legion.level})
 	
 </p>
 {/if}

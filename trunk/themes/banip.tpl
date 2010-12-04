@@ -10,7 +10,6 @@
 
 </script>
 {/literal}
-
 {if isset($message) && $message}
 <div class="toolTip tpBlue clearfix" >
 	<p>
@@ -20,7 +19,8 @@
 
 	<a class="close" title="Close"></a>
 </div>
-{/if}	
+{/if}
+
 
 <div class="fields accord">
 <h3><a href="#">{$lang.banip}</a></h3>

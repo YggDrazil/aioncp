@@ -2,7 +2,7 @@
 				</div>
 			</div>
 		</div>
-<div style="text-align:center; color:gray">{$smarty.const.AIONCP_VERSION} &copy; by <a href="http://www.fdcore.ru">FDCore Studio</a> 2010</div>
+<div style="text-align:center; color:gray">{$smarty.const.AIONCP_VERSION} &copy; by <a href="http://www.fdcore.ru">FDCore Studio</a> 2010-2011</div>
 		</div>
 
 <script type="text/javascript">{$js}</script>

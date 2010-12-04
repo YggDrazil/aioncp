@@ -24,7 +24,7 @@ $(document).ready(function(){
 {if isset($smarty.get.ajax)==FALSE}
 <form method="get">
 <input type="hidden" name="action" value="char" />
-<input type="text" name="char_id" class="sText" pattern="([0-9]+)" required placeholder="Введите номер персонажа"  />
+<input type="text" name="char_id" class="sText" pattern="([0-9]+)" required placeholder="{$lang.search_tooptip_numchar}" title="{$lang.search_tooptip_numchar}" />
 <input type="submit" value="&rarr;"  class='butDef'/>
 </form>
 {/if}

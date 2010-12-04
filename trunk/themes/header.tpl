@@ -40,7 +40,6 @@
 		
 		<!-- comment extra.css for css validation -->
 		<link rel="stylesheet" type="text/css" media="all" href="{$smarty.const.TPL_URL}css/extra.css" />
-		
 		<link rel="alternate stylesheet" title="red" type="text/css" media="all" href="{$smarty.const.TPL_URL}css/red.css" />
 		<link rel="alternate stylesheet" title="green" type="text/css" media="all" href="{$smarty.const.TPL_URL}css/green.css" />
 		<link rel="alternate stylesheet" title="brown" type="text/css" media="all" href="{$smarty.const.TPL_URL}css/brown.css" />
