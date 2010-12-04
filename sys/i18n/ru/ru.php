@@ -1,12 +1,7 @@
 <?php
-/*----------------------------------
- * Special keys
- */
 $lang['lang']='Русский';
 $lang['icon']='i18n/ru/russian.png';
 $lang['aiondatabase']='http://ru.aiondatabase.com/';
-//-----------------------------------
-
 $lang['search_account_name']='По имени аккаунта';
 $lang['menu_main']='Главная';
 $lang['menu_acclist']='Аккаунты';
@@ -229,4 +224,60 @@ $lang['cachedin']='Кешировано в';
 $lang['chartitle']='Звание';
 $lang['nofriends']='Нет друзей';
 $lang['securereturned']='Для безопасности выведено лишь 500 записей';
-$lang['']='';
+
+$lang['pronothave']='Pro Версия пока не имеет данной функции.';
+$lang['addedindl']='Данные добавлены в дроплист.';
+$lang['skillsmanager']='Работа со скиллами';
+$lang['skills']='Скиллы';
+$lang['mailmanager']='Работа с почтой';
+$lang['nomails']='У персонажа нет писем.';
+$lang['ipdeleted']='IP Успешно удалён.';
+$lang['accdelrop']='Вы уверены что хотите удалить данный предмет?';
+$lang['itemlistbyidm']='Список предметов по id монстра';
+$lang['addnewrow']='Добавить новое поле';
+$lang['workwwithdp']='Работа с дроплистом';
+$lang['monsterid']='id монстра';
+$lang['dlminchance']='Минимальное выпадение предмета';
+$lang['dlmaxchance']='Максимальное выпадение предмета';
+$lang['dlchance']='Шанс выпадение предмета';
+$lang['add']='Добавить';
+$lang['chance']='Шанс';
+$lang['item']='Предмет';
+$lang['min']='Мин.';
+$lang['max']='Макс.';
+$lang['arsure']='Вы уверены?';
+$lang['delete']='Удалить';
+$lang['skillid']='ID Скилла';
+$lang['levelskill']='Уровень скилла';
+$lang['acceptdelskill']='Вы действительно хотите удалить данный скилл?';
+$lang['skill']='Скилл';
+$lang['skilllist']='Список скиллов';
+$lang['ipadress']='IP Адрес';
+$lang['expiredban']='Срок бана';
+$lang['banthis']='Забанить';
+$lang['banlist']='Список банов';
+$lang['senderName']='Отправитель';
+$lang['RecentName']='Получатель';
+$lang['mailTitle']='Заголовок';
+$lang['recievedTime']='Дата отправки';
+$lang['editannonce']='Изменить анонс';
+$lang['message']='Сообщение';
+$lang['wshow']='Кому отображать';
+$lang['type']='Тип';
+$lang['timereply']='Время повтора';
+$lang['addanonce']='Добавить анонс';
+$lang['items_title']='Предметы';
+$lang['enteritemname']='Введите имя предмета ';
+$lang['itemplace']='Размещение предмета: ';
+$lang['legion']='Легион';
+
+$lang['server']='Сервер';
+$lang['search_tooptip_login']='Введите часть логина';
+$lang['search_tooptip_nik']='Введите начало ника';
+$lang['search_tooptip_email']='Введите часть email';
+$lang['search_tooptip_ip']='Введите начало IP';
+$lang['search_tooptip_number']='Введите номер аккаунта';
+$lang['search_tooptip_numchar']='Введите номер персонажа';
+
+
+
