@@ -1,5 +1,6 @@
-AionCP FreeWare 1.1!
+AionCP FreeWare 1.2!
 ---------------------
+#Новогодняя версия
 [MarkDown](http://ru.wikipedia.org/wiki/Markdown) *RU*
 
 by FDCore Studio

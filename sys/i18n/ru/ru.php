@@ -270,7 +270,6 @@ $lang['items_title']='Предметы';
 $lang['enteritemname']='Введите имя предмета ';
 $lang['itemplace']='Размещение предмета: ';
 $lang['legion']='Легион';
-
 $lang['server']='Сервер';
 $lang['search_tooptip_login']='Введите часть логина';
 $lang['search_tooptip_nik']='Введите начало ника';
@@ -278,6 +277,18 @@ $lang['search_tooptip_email']='Введите часть email';
 $lang['search_tooptip_ip']='Введите начало IP';
 $lang['search_tooptip_number']='Введите номер аккаунта';
 $lang['search_tooptip_numchar']='Введите номер персонажа';
+$lang['legion_point']='Очки';
+$lang['legion_404']='Нет легиона на сервере';
+$lang['legion_addtoleg']='Добавить в легион';
+$lang['legion_players']='Игроки легиона';
+$lang['legion_rank']='Ранг';
+$lang['legion_deletefroml']='Удалить из легиона';
 
-
-
+$lang['delete_account']='Удалить аккаунт';
+$lang['']='';
+$lang['']='';
+$lang['']='';
+$lang['']='';
+$lang['']='';
+$lang['']='';
+$lang['']='';
