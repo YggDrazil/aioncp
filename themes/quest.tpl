@@ -55,16 +55,16 @@
 		<tr style="background:{if $switch % 2}#E9E9E9{else}#F8F8F8{/if}" id="row{$switch}">
 			<td>{$q.quest_id}</td>
 			<td><select name="status[{$q.quest_id}]" class="sSelect">
-				<option value="NONE" {if $q.status=="NONE"}selected="selected"{/if}>NONE</option>
-				<option value="COMPLETE" {if $q.status=="COMPLETE"}selected="selected"{/if}>COMPLETE</option>
-				<option value="START" {if $q.status=="START"}selected="selected"{/if}>START</option>
-				<option value="LOCKED" {if $q.status=="LOCKED"}selected="selected"{/if}>LOCKED</option>
+				<option value="NONE" {if $q.status=="NONE"}selected="selected"{/if}>Нету</option>
+				<option value="COMPLETE" {if $q.status=="COMPLETE"}selected="selected"{/if}>Завершён</option>
+				<option value="START" {if $q.status=="START"}selected="selected"{/if}>Начат</option>
+				<option value="LOCKED" {if $q.status=="LOCKED"}selected="selected"{/if}>Заблокирован</option>
 				</select>
 			</td>
 			<td><input type="text" name='quest_vars[{$q.quest_id}]' requered pattern="([0-9]+)" value="{$q.quest_vars}" class="sText"/></td>
 			<td><input type="text" name='complete_count[{$q.quest_id}]' requered pattern="([0-9]+)" value="{$q.complete_count}" class="sText"/></td>
 			<td>
-				<a href="javascript:;" onclick="sdel({$q.quest_id})"><img src="themes/i/delete.png" alt="" /></a>
+				<a href="javascript:;" class="click_signal" signal="?action=quest&char_id={$smarty.get.char_id}&delete={$q.quest_id}"><img src="themes/i/delete.png" alt="" /></a>
 			</td>
 		</tr>
 		{/foreach}
@@ -78,6 +78,7 @@
 <h3><a href="#">{$lang.add}</a></h3>
 <div>
 <form method="post">
+<input type="hidden" name="add_quest" value="y">
 <table>
 <tr>
 	<td>{$lang.char_id}</td>
@@ -90,10 +91,10 @@
 <tr>
 	<td>Статус</td>
 	<td><select name="status" class="sSelect">
-		<option value="NONE">NONE</option>
-		<option value="COMPLETE">COMPLETE</option>
-		<option value="START">START</option>
-		<option value="LOCKED">LOCKED</option>
+		<option value="NONE">Нету</option>
+		<option value="COMPLETE">Завершён</option>
+		<option value="START">Начат</option>
+		<option value="LOCKED">Заблокирован</option>
 	</select></td>
 </tr>
 <tr>

@@ -1,13 +1,15 @@
 <?php
 /* ------------------------------------------------------------------------
 
- * Aion Control Panel [Professional Version]
+ * Aion Control Panel
  *
- * @version 1.1
+ * @version 1.2
  * @author NetSoul (FDCore main Developer)
  * @link http://www.fdcore.ru
+ * @license http://creativecommons.org/licenses/by-nc-sa/3.0/deed.ru
  *
  * http://code.google.com/p/aioncp/
+ * http://gameacp.ru/aioncp/
  *
  * @license http://fdcore.ru/license.html
 
@@ -17,9 +19,6 @@
 //get current path  FIX 04-09-2010
 $pathinfo = pathinfo(__FILE__);
 define('ROOT', $pathinfo['dirname'].DIRECTORY_SEPARATOR);
-
-//fix sqlitedb
-//define("SQLDB",'SQLiteDatabase2');
 
 if(!defined('DOMAIN')){
 	define("DOMAIN",'AionCP');
@@ -52,7 +51,7 @@ if(!is_readable(SYSTEM_PATH.'path.php'))
 
 include_once(SYSTEM_PATH.'path.php');
 
-// Proffessional version check [pro file]
+// Proffessional version check 
 if(file_exists(CLASS_PATH . 'pro.controller.php')) include (CLASS_PATH . 'pro.controller.php');
 
 // includes files
@@ -65,13 +64,11 @@ $class_list=array(
     'cache.class.php',
      'throttling.php',
 	'mysql.model.php',
-//	'SQLiteDatabase2.php',
+	'SQLiteDatabase2.php',
   'encrypt.class.php'
  );
 
 
-        
-        
 foreach ($class_list as $key => $value) {
 	$value=CLASS_PATH . $value;
 	// есть чо?
