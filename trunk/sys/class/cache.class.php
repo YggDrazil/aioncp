@@ -10,7 +10,9 @@
  * http://code.google.com/p/aioncp/
  *
  * @license http://fdcore.ru/license.html
+ * Year 2010-2011
 
+	Cache lib by NetSoul
 ------------------------------------------------------------------------ */
 
 class Cache{
@@ -19,8 +21,6 @@ class Cache{
 	{
 		if(!defined('CACHE_PATH')) return false;
 	}
-
-
 
 	public function set($items, $tags = NULL, $lifetime = NULL)
 	{
@@ -32,11 +32,11 @@ class Cache{
 			$lifetime += time();
 		}
 
-		if ( ! is_null($tags) AND ! empty($tags))
+		/*if ( ! is_null($tags) AND ! empty($tags))
 		{
 			// Convert the tags into a string list
 			$tags = implode('+', (array) $tags);
-		}
+		}*/
 
 		$success = TRUE;
 
@@ -88,7 +88,7 @@ class Cache{
 	/**
 	 * Delete cache items by keys or tags
 	 */
-	public function delete($key, $tag = FALSE)
+	public function delete($key)
 	{
 		if(file_exists(CACHE_PATH.md5($key))){
 			@unlink(CACHE_PATH.md5($key));
@@ -96,6 +96,5 @@ class Cache{
 		} else return false;
 		
 	}
-
 	
-} // End Cache Memcache Driver
+}

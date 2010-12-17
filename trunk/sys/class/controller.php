@@ -254,7 +254,8 @@ define('ENCRYPT_KEY', '$en_key');";
 	*/	
 	private function lang_init()
 	{
-	
+                //include standart full lang file
+                include_once(LANG_PATH.'ru'.DIRECTORY_SEPARATOR."ru.php");
 			// составляем путь
 		if (isset($_SESSION['lang'])) {
 
@@ -528,7 +529,7 @@ define('ENCRYPT_KEY', '$en_key');";
 	    { 
 		    foreach($badchars as $bad) 
 		    {
-			    if(strstr(strtolower($value),$bad)<>FALSE) 
+			    if(!is_array($value) && strstr(strtolower($value),$bad)<>FALSE) 
 			    {
 			    	die("Hacking attept! Found text: $bad");
 			    }
@@ -2920,6 +2921,201 @@ FILE;
 			return $this->tpl->fetch('legion.tpl');
 		}
 	}
+	
+	function delchar(){
+	
+		$char_id=intval($_GET['char_id']);
+		
+		if($char_id > 0){
+			if(isset($_POST['char_id']) && $_GET['char_id']==$_POST['char_id']){
+                            
+				$log = $this->_delete_char($char_id);
+                                
+                                $this->tpl->assign('log',$log);
+				$this->tpl->assign('deleted',true);
+			} else $this->tpl->assign('deleted',false);
+			
+			return $this->tpl->fetch('delchar.tpl');
+		}
+		
+	}
+	
+	function _delete_char($char_id=0){
+		if(!isset($char_id) || $char_id <= 0 ) return;
+		
+                if(!isset($this->gs_connect)){
+                    include(CONF);
+                    $this->db	= new sql_db($db_host, $db_login, $db_password, $db_game_server);
+                    $this->gs_connect=true;
+                }
+		$q=array();
+                $log=array();
+                
+		$q[]="DELETE FROM players WHERE id = %d;";
+		$q[]="DELETE FROM player_appearance WHERE player_id = %d;";
+		$q[]="DELETE FROM player_macrosses WHERE player_id = %d;";
+		$q[]="DELETE FROM player_quests WHERE player_id = %d;";
+		$q[]="DELETE FROM player_settings WHERE player_id = %d;";
+		$q[]="DELETE FROM player_skills WHERE player_id = %d;";
+		$q[]="DELETE FROM player_recipes WHERE player_id = %d;";
+		$q[]="DELETE FROM player_punishments WHERE = %d;";
+		$q[]="DELETE FROM player_effects WHERE player_id = %d;";
+		$q[]="DELETE FROM friends WHERE friend = %d;";
+		$q[]="DELETE FROM player_titles WHERE player_id = %d;";
+		$q[]="DELETE FROM legion_members WHERE player_id = %d;";
+		$q[]="DELETE FROM abyss_rank WHERE player_id = %d;";
+		$q[]="DELETE FROM inventory WHERE itemOwner = %d;";
+	
+		foreach($q as $query){
+			$r=$this->db->sql_query(sprintf($query,$char_id));
+                        $log[]=array('query'=>sprintf($query,$char_id),'affected'=>mysql_affected_rows($this->db->db_connect_id));
+		}
+                
+                return $log;
+	}
+	function deleteaccount(){
+		$account_id=intval($_GET['account_id']);
+		$log        =array();
+                $players_id =array();
+                $q          =array();
+                
+		if($account_id > 0){
+			if(isset($_POST['account_id']) && $_GET['account_id']==$_POST['account_id']){
+			
+				include(CONF);
+                                
+                                $this->db	= new sql_db($db_host, $db_login, $db_password, $db_login_server);
+                                
+                                $q[]="DELETE FROM account_data WHERE id=%d";
+                                $q[]="DELETE FROM account_time WHERE account_id=%d";
+                                
+                                foreach($q as $query){
+                                    $r=$this->db->sql_query(sprintf($query,$account_id));
+                                    $log[]=array('query'=>sprintf($query,$account_id),'affected'=>mysql_affected_rows($this->db->db_connect_id));
+                                }
+                                
+				$this->db	= new sql_db($db_host, $db_login, $db_password, $db_game_server);	
+				
+				$result = $this->db->sql_query(sprintf("SELECT id FROM players WHERE account_id=%d",$account_id));
+                                
+				if ($this->db->sql_numrows($result) > 0) {
+                                    
+					while ($row=$this->db->sql_fetchrow($result)) {
+						$players_id[]=$row['id'];
+					}
+					
+				}
+                                
+                                foreach($players_id as $char){
+                                    $_log = $this->_delete_char($char);
+                                    $log=array_merge($log,$_log);
+                                }
+                                
+				$this->tpl->assign('log',$log);
+				$this->tpl->assign('deleted',true);
+			} else $this->tpl->assign('deleted',false);
+			
+			return $this->tpl->fetch('deleteaccount.tpl');
+		}		
+		
+	}
+        
+ 	function quest(){
+		$this->tpl->assign('title','Квесты');
+		
+		if(isset($_POST['char_id']) && $_POST['char_id'] > 0){
+			header(sprintf("location: index.php?action=quest&char_id=%d",$_POST['char_id']));
+			
+		}
+		
+		if(isset($_POST['char_name'])){
+			include(CONF);
+			$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);				
+			$char=$this->secure($_POST['char_name']);
+			
+			$result=$this->db->sql_query("SELECT * FROM players WHERE name='$char'");
+			
+			if ($this->db->sql_numrows($result) > 0) {
+				$row=$this->db->sql_fetchrow($result);	
+				header(sprintf("location: index.php?action=quest&char_id=%d",$row['id']));
+			}
+		}
+		
+		// show quest
+		if(isset($_GET['char_id']) && $_GET['char_id'] > 0){
+			$char_id=intval($_GET['char_id']);
+			if($char_id <= 0) throw new Exception("Передан неверный параметр quest($char_id)");
+			include(CONF);
+			$this->db	=new sql_db($db_host, $db_login, $db_password, $db_game_server);				
+			
+			if(isset($_POST['status']) && is_array($_POST['status'])){
+				$status		= $_POST['status'];
+				$quest_vars	= $_POST['quest_vars'];
+				$complete_count	= $_POST['complete_count'];					
+				
+				// сохранение значений
+				foreach($status as $qid => $q){
+					if(isset($status[$qid],$quest_vars[$qid],$complete_count[$qid]))
+						$this->db->sql_query(sprintf("UPDATE player_quests SET status='%s', quest_vars=%d, complete_count=%d WHERE player_id=%d AND quest_id=%d",
+									     $status[$qid],$quest_vars[$qid],$complete_count[$qid],$char_id,$qid));
+					
+				}
+				
+			}
+			
+			$result=$this->db->sql_query("SELECT * FROM player_quests WHERE player_id=$char_id");
+			
+			if ($this->db->sql_numrows($result) > 0) {
+				$questlist=array();
+				
+				while($row=$this->db->sql_fetchrow($result)){
+					$questlist[]=$row;
+					
+				}
+				
+				$this->tpl->assign('questlist',$questlist);
+				
+			} else throw new Exception("Персонаж не найден в базе: char_id($char_id)");
+			
+		}
+		
+		if(isset($_GET['delete'],$_GET['char_id'])){
+			
+			$questid	= intval($_GET['delete']);
+			$char_id	= intval($_GET['char_id']);
+			
+			$result=$this->db->sql_query("SELECT * FROM player_quests WHERE player_id=$char_id AND quest_id=$questid");
+			
+			if ($this->db->sql_numrows($result) == 1) {
+				
+				$this->db->sql_query("DELETE FROM player_quests WHERE player_id=$char_id AND quest_id=$questid");
+				
+				echo "alert('Удалено #$questid')";
+				
+			} else echo "alert('Ошибка удаления #$questid')";
+			
+			exit(0);
+			
+		}
+		
+		if(isset($_POST['add_quest'])){
+			
+			$player_id	= intval($_POST['player_id']);
+			$quest_id	= intval($_POST['quest_id']);
+			$status		= $_POST['status'];
+			$quest_vars	= intval($_POST['quest_vars']);
+			$complete_count	= intval($_POST['complete_count']);
+			
+			if($player_id && $quest_id && $status){
+				$result=$this->db->sql_query("INSERT INTO player_quests (quest_id,status,quest_vars,complete_count,player_id)
+						     VALUES($quest_id,'$status',$quest_vars,$complete_count,$player_id)");
+				
+				$this->tpl->assign('message','Квест добавлен');
+			}
+			
+		}
+		return $this->tpl->fetch('quest.tpl');
+	}       
 // ------------------------------------------------------------------------
   	/*
   		is the end

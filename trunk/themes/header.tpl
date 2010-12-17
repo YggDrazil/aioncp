@@ -180,7 +180,7 @@
                                 <li><a href="?action=friends&char_id={$smarty.get.char_id}">{$lang.friends}</a></li>
                                 <li><a href="?action=mails&char_id={$smarty.get.char_id}">{$lang.mail}</a></li>
                                 <li><a href="?action=skills&char_id={$smarty.get.char_id}">{$lang.skilllist}</a></li>
-                                <!--<li><a href="?action=delchar&char_id={$smarty.get.char_id}">Удалить персонажа</a></li>-->
+                                <li><a href="?action=delchar&char_id={$smarty.get.char_id}">Удалить персонажа</a></li>
 							{/if}
                             {if isset($smarty.get.action) && $smarty.get.action=='construct'}
                                 <li><a href="?action=construct&show=create">{$lang.constr_query}</a></li>

@@ -30,17 +30,17 @@
 <div class="fields accord"> 
 
 {if $legion_info}
-<h3><a href="#">Гильдия {$legion_info.name}</a></h3>
+<h3><a href="#">{$lang.legion} {$legion_info.name}</a></h3>
 <div>
 
 <form method="post" id='accinfo'>
 <p> 
-	<label for="name" class="small">Имя гильдии</label> 
+	<label for="name" class="small">{$lang.legion}</label> 
 	<input type="text" name='name' value="{$legion_info.name}" class="sText"/> 
 				
 </p>
 <p> 
-	<label for="level" class="small">Уровень</label> 
+	<label for="level" class="small">{$lang.level}</label> 
 	<input type="text" name='level' class="sText" value="{$legion_info.level}" pattern="([0-9]+)" />
 				
 </p>
@@ -71,11 +71,11 @@
 {/if}
 
 
-<h3><a href="#">Добавить в гильдию</a></h3>
+<h3><a href="#">{$lang.legion_addtoleg}</a></h3>
 <div>
 <form method="post">
 <p> 
-	<label for="addname" class="medium">Имя персонажа</label> 
+	<label for="addname" class="medium">{$lang.char_name}</label> 
 	<input type="text" name='addname' class="sText"/> 
 </p>
 	<input type='submit' value='{$lang.add}' class='editbtn1 butDef'>
@@ -83,14 +83,14 @@
 </div>
 
 {if $member_list}
-<h3><a href="#">Игроки гильдии</a></h3>
+<h3><a href="#">{$lang.legion_players}</a></h3>
 <div>
 <table border="0" cellpadding="4" cellspacing="5" class="uiTable">
 <thead>
-	<th>Ник</th>
-	<th>Аккаунт</th>
-	<th>Уровень</th>
-	<th>Ранг</th>
+	<th>{$lang.char_name}</th>
+	<th>{$lang.account}</th>
+	<th>{$lang.level}</th>
+	<th>{$lang.legion_rank}</th>
 	<th></th>
 </thead>
 	{foreach item=row name=members from=$member_list}
@@ -99,12 +99,12 @@
 		<td><a href="?action=info&char={$row.account_id}"  target="_blank">{$row.account_name}</a></td>
 		<td>{$row.exp|level}</td>
 		<td>{$row.rank}</td>
-		<td><a href="javascript:;" class="click_signal del_{$row.player_id}" signal="?action=legion&id={$legion_info.id}&char_id={$row.player_id}"><img src="{$smarty.const.TPL_URL}i/delete.png" title="Удалить из гильдии" /></a></td>
+		<td><a href="javascript:;" class="click_signal del_{$row.player_id}" signal="?action=legion&id={$legion_info.id}&char_id={$row.player_id}"><img src="{$smarty.const.TPL_URL}i/delete.png" title="{$lang.legion_deletefroml}" /></a></td>
 	</tr>		
 	{/foreach}
 </table>
 </div>
 {else}
-Нет гильдии на сервере
+Нет легиона на сервере
 {/if}
 </div>
