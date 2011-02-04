@@ -1872,6 +1872,7 @@ JS;
 		   $itemUniqueId=intval($_POST['itemUniqueId']);
 			$itemId		=intval($_POST['itemId']);
 			$itemCount	=intval($_POST['itemCount']);
+			$enchant	=intval($_POST['enchant']);
 			if(isset($_POST['isEquiped']) && $_POST['isEquiped']==1)
 				$isEquiped	=1; else $isEquiped	=0;
 			$slot		=intval($_POST['slot']);
@@ -1880,6 +1881,7 @@ JS;
 				itemId =  '$itemId',
 				itemCount='$itemCount',
 				isEquiped='$isEquiped',
+				enchant='$enchant',
 				slot='$slot'
 			WHERE 
 				itemUniqueId =$itemUniqueId;");
@@ -1917,7 +1919,7 @@ JS;
 					$_sort='DESC';
 				} else $_sort='ASC';
 				
-				if($_GET['order']=='count') $_order='itemCount'; else  $_order='isEquiped';
+				if($_GET['order']=='count') $_order='itemCount'; elseif($_GET['order']=='enchant') $_order='enchant'; else $_order='isEquiped';
 			}
 			
 			if(isset($_GET['loc'])){
@@ -1927,17 +1929,18 @@ JS;
 				}
 				
 			}
-			$result=$this->db->sql_query("SELECT itemUniqueId,itemId,itemCount,isEquiped,slot FROM inventory WHERE itemOwner=$char_id $_where ORDER BY $_order $_sort");
+			$result=$this->db->sql_query("SELECT itemUniqueId,itemId,itemCount,isEquiped,slot,enchant FROM inventory WHERE itemOwner=$char_id $_where ORDER BY $_order $_sort");
 			
 			$this->table->set_heading(
 			'#',
 				$L['item_name'],
 				"<a href='{$CURRENT_LINK}count&sort=$SORT'>".$L['count']."</a>",
+				"<a href='{$CURRENT_LINK}enchant&sort=$SORT'>Enchant</a>",
 				"<a href='{$CURRENT_LINK}eqip&sort=$SORT'>".$L['eqiped']."</a>",
 				$L['action']
 			);
 			
-			while (list($itemUniqueId,$itemId,$itemCount,$isEquiped,$slot)=$this->db->sql_fetchrow($result))
+			while (list($itemUniqueId,$itemId,$itemCount,$isEquiped,$slot,$enchant)=$this->db->sql_fetchrow($result))
 			{
 				$action="<a href='".VOID."' name='$itemUniqueId' onclick=\"invenload('$itemUniqueId')\"><img src='".TPL_URL."i/edit.png'></a>
 				<a href='?action=items&char_id=$char_id&delete=$itemUniqueId' 
@@ -1946,7 +1949,7 @@ JS;
 
 				$this->table->add_row(
                         "<a class='aion-recipe-icon-medium' href='".$L['aiondatabase']."item/$itemId'></a>",
-                        $this->get_item_name($itemId),$itemCount,($isEquiped)?$L['y']:$L['n'],$action);
+                        $this->get_item_name($itemId),$itemCount,$enchant,($isEquiped)?$L['y']:$L['n'],$action);
 			}
 			
 			$result=$this->db->sql_query("SELECT DISTINCT itemLocation FROM inventory WHERE itemOwner=$char_id");
@@ -2073,7 +2076,8 @@ private function construct(){
         // запуск скрипта
         if($_GET['do']=='run') {
             $id=intval($_GET['id']); // номер запроса
-
+            $_query = '';
+            
             $qu=$this->const_db->arrayQuery("SELECT * FROM constr WHERE id=$id"); // получаем данные
             $q=$qu[0];// 1 запись
             //
@@ -2383,19 +2387,21 @@ private function construct(){
 			
 		if(isset($_GET['item'])){
 			$qitems=intval($_GET['item']);
-			$result=$this->db->sql_query("SELECT itemUniqueId,itemId,itemCount,isEquiped,slot FROM inventory WHERE itemUniqueId = $qitems");
+			$result=$this->db->sql_query("SELECT * FROM inventory WHERE itemUniqueId = $qitems");
 				$row=$this->db->sql_fetchrow($result);
 				extract($row);
 				
 				$this->table->add_row($L['uniqn'],"<input name='itemUniqueId' type='hidden' value='$itemUniqueId'>".$itemUniqueId);
 				$this->table->add_row($L['iditem'],"<input name='itemId' class='sText' type='text' value='$itemId'><br>".$this->get_item_name($itemId));
 				$this->table->add_row($L['count'],"<input name='itemCount' class='sText' type='text' value='$itemCount'>");
+				$this->table->add_row('enchant',"<input name='enchant' class='sText' type='text' value='$enchant'>");
 				$this->table->add_row($L['eqiped'],"<input name='isEquiped' class='sCheck' type='checkbox' value='1' ".(($isEquiped)?'checked':'').">");
 				$this->table->add_row($L['slot'],"<input name='slot' class='sText' type='text' value='$slot'>");
 				
 				exit('<form method="post">'.$this->table->generate()."<input type='submit' name='edited' class='editbtn1 butDef' value='".$L['save']."'></form>");			
 		}
 	}
+	
     static function GetInstance(){
 
         if(self::$instance == NULL){
