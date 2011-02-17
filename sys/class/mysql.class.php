@@ -66,12 +66,12 @@ class sql_db {
 		unset($this->query_result);
 		if ($query != "") {
 			$st = array_sum(explode(" ", microtime()));
-			$this->query_result = @mysql_query($query, $this->db_connect_id);
+			$this->query_result = mysql_query($query, $this->db_connect_id);
 			$total_tdb = round(array_sum(explode(" ", microtime())) - $st, 5);
 			$this->total_time_db += $total_tdb;
 			$this->time_query .= "".$total_tdb > 0.01."" ? "<font color=\"red\"><b>".$total_tdb."</b></font> . - [".$query."]<br><br>" : "<font color=\"green\"><b>".$total_tdb."</b></font> - [".$query."]<br><br>";
 		}
-		if ($this->query_result) {
+		if (isset($this->query_result) && $this->query_result) {
 			$this->num_queries += 1;
 			unset($this->row[$this->query_result]);
 			unset($this->rowset[$this->query_result]);
@@ -82,7 +82,7 @@ class sql_db {
 	}
 
 	function sql_numrows($query_id = 0) {
-		if (!$query_id) $query_id = $this->query_result;
+		if (isset($query_id ) && !$query_id) $query_id = $this->query_result;
 		return ($query_id) ? @mysql_num_rows($query_id) : false;
 	}
 

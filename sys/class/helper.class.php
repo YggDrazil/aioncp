@@ -287,66 +287,76 @@ class helper {
 	 $level[48]=741341640;
 	 $level[49]=853768081;
 	 $level[50]=982677974;
+	 $level[51]=1128723911;
+	 $level[52]=1274793939;
+	 $level[53]=1452258717;
+	 $level[54]=1637888962;
+	 $level[55]=1860645256;
 	 return $level;
 	}
 
     static function get_level($EXP='')
 	{
-	   if($EXP=='') return false;
-
-	    if ($EXP <= 650) {$level = 1;}
-	   else if ($EXP < 650) {$level = 2;}
-	   else if ($EXP < 2567) {$level = 3;}
-	   else if ($EXP < 6797) {$level = 4;}
-	   else if ($EXP < 15490) {$level = 5;}
-	   else if ($EXP < 30073) {$level = 6;}
-	   else if ($EXP < 52958) {$level = 7;}
-	   else if ($EXP < 87894) {$level = 8;}
-	   else if ($EXP < 140329) {$level = 9;}
-	   else if ($EXP < 213454) {$level = 10;}
-	   else if ($EXP < 307558) {$level = 11;}
-	   else if ($EXP < 483553) {$level = 12;}
-	   else if ($EXP < 608161) {$level = 13;}
-	   else if ($EXP < 825336) {$level = 14;}
-	   else if ($EXP < 1091985) {$level = 15;}
-	   else if ($EXP < 1418170) {$level = 16;}
-	   else if ($EXP < 1810467) {$level = 17;}
-	   else if ($EXP < 2332547) {$level = 18;}
-	   else if ($EXP < 3002259) {$level = 19;}
-	   else if ($EXP < 3820081) {$level = 20;}
-	   else if ($EXP < 4820228) {$level = 21;}
-	   else if ($EXP < 6115322) {$level = 22;}
-	   else if ($EXP < 7725199) {$level = 23;}
-	   else if ($EXP < 9727123) {$level = 24;}
-	   else if ($EXP < 12075781) {$level = 25;}
-	   else if ($EXP < 14762522) {$level = 26;}
-	   else if ($EXP < 17879938) {$level = 27;}
-	   else if ($EXP < 21482201) {$level = 28;}
-	   else if ($EXP < 25494737) {$level = 29;}
-	   else if ($EXP < 30171209) {$level = 30;}
-	   else if ($EXP < 35999532) {$level = 31;}
-	   else if ($EXP < 42807774) {$level = 32;}
-	   else if ($EXP < 50898898) {$level = 33;}
-	   else if ($EXP < 60588305) {$level = 34;}
-	   else if ($EXP < 73257434) {$level = 35;}
-	   else if ($EXP < 89381899) {$level = 36;}
-	   else if ($EXP < 109123921) {$level = 37;}
-	   else if ($EXP < 135145762) {$level = 38;}
-	   else if ($EXP < 165081925) {$level = 39;}
-	   else if ($EXP < 201229895) {$level = 40;}
-	   else if ($EXP < 243367815) {$level = 41;}
-	   else if ($EXP < 292723295) {$level = 42;}
-	   else if ($EXP < 350683175) {$level = 43;}
-	   else if ($EXP < 415055544) {$level = 44;}
-	   else if ($EXP < 485437946) {$level = 45;}
-	   else if ($EXP < 559304956) {$level = 46;}
-	   else if ($EXP < 643833129) {$level = 47;}
-	   else if ($EXP < 741341640) {$level = 48;}
-	   else if ($EXP < 853768081) {$level = 49;}
-	   else if ($EXP < 982677974) {$level = 50;}
-	   else {$level = 51;}
-	   unset($EXP);
-	   return $level;
+      if($EXP=='') return false;
+     
+       if ($EXP > 0 && $EXP < 650) {$level = 1;}
+      else if ($EXP <2567) {$level = 2;}
+      else if ($EXP <6797) {$level = 3;}
+      else if ($EXP <15490) {$level = 4;}
+      else if ($EXP <30073) {$level = 5;}
+      else if ($EXP <52958) {$level = 6;}
+      else if ($EXP <87894) {$level = 7;}
+      else if ($EXP <140329) {$level = 8;}
+      else if ($EXP <213454) {$level = 9;}
+      else if ($EXP <307558) {$level = 10;}
+      else if ($EXP <483553) {$level = 11;}
+      else if ($EXP <608161) {$level = 12;}
+      else if ($EXP <825336) {$level = 13;}
+      else if ($EXP <1091985) {$level = 14;}
+      else if ($EXP <1418170) {$level = 15;}
+      else if ($EXP <1810467) {$level = 16;}
+      else if ($EXP <2332547) {$level = 17;}
+      else if ($EXP <3002259) {$level = 18;}
+      else if ($EXP <3820081) {$level = 19;}
+      else if ($EXP <4820228) {$level = 20;}
+      else if ($EXP <6115322) {$level = 21;}
+      else if ($EXP <7725199) {$level = 22;}
+      else if ($EXP <9727123) {$level = 23;}
+      else if ($EXP <12075781) {$level = 24;}
+      else if ($EXP <14762522) {$level = 25;}
+      else if ($EXP <17879938) {$level = 26;}
+      else if ($EXP <21482201) {$level = 27;}
+      else if ($EXP <25494737) {$level = 28;}
+      else if ($EXP <30171209) {$level = 29;}
+      else if ($EXP <35999532) {$level = 30;}
+      else if ($EXP <42807774) {$level = 31;}
+      else if ($EXP <50898898) {$level = 32;}
+      else if ($EXP <60588305) {$level = 33;}
+      else if ($EXP <73257434) {$level = 34;}
+      else if ($EXP <89381899) {$level = 35;}
+      else if ($EXP <109123921) {$level = 36;}
+      else if ($EXP <135145762) {$level = 37;}
+      else if ($EXP <165081925) {$level = 38;}
+      else if ($EXP <201229895) {$level = 39;}
+      else if ($EXP <243367815) {$level = 40;}
+      else if ($EXP <292723295) {$level = 41;}
+      else if ($EXP <350683175) {$level = 42;}
+      else if ($EXP <415055544) {$level = 43;}
+      else if ($EXP <485437946) {$level = 44;}
+      else if ($EXP <559304956) {$level = 45;}
+      else if ($EXP <643833129) {$level = 46;}
+      else if ($EXP <741341640) {$level = 47;}
+      else if ($EXP <853768081) {$level = 48;}
+      else if ($EXP <982677974) {$level = 49;}
+      else if ($EXP <1128723911) {$level = 50;}
+	  else if ($EXP <1274793939) {$level = 51;}
+	  else if ($EXP <1452258717) {$level = 52;}
+	  else if ($EXP <1637888962) {$level = 53;}
+	  else if ($EXP <1860645256) {$level = 54;}
+	  else if ($EXP <2188208206) {$level = 55;}
+	  else  {$level = 56;}
+      unset($EXP);
+      return $level;
 	}
 
     static function secure($check_string)
