@@ -166,11 +166,12 @@ div.wysiwyg ul.panel li a { opacity: 0.6; }
 	top:35%; 
 	color: black;
 	background-color:rgba(255, 255, 255, 0.8);
+	background: -webkit-gradient(linear, left top, left bottom, from(#FAFAFA), to(#E0E0E0));
 	-moz-border-radius: 10px; 
 	-webkit-border-radius: 10px; 
 	border: 1px solid #888; 
 	padding: 10px;
-	box-shadow: 10px 10px 5px #888;
+	box-shadow: 0px 0px 5px #888;
 }
 .popup_close{
 	position:absolute; 
@@ -186,7 +187,6 @@ div.wysiwyg ul.panel li a { opacity: 0.6; }
 	-moz-box-shadow: 0px 0px 25px rgba(196,196,196,0.8);
 	-webkit-box-shadow:0px 0px 25px rgba(196,196,196,0.8);
 	box-shadow:0px 0px 25px rgba(196,196,196,0.8);
-	border-radius:5px;
 }
 #pannelDash .mainboard{
 		width:680px;
@@ -194,8 +194,13 @@ div.wysiwyg ul.panel li a { opacity: 0.6; }
 	
 #markdown:hover{ background-color: #FFFFF5; border: 1px dashed gray;}
 :invalid{
+	background:red;	
 	background: -webkit-gradient(linear, left top, left bottom, from(#FF4D62), to(#FC001E));
 	color:white;
+}
+input{
+	background:white;
+	background: -webkit-gradient(linear, left top, left bottom, from(#FAFAFA), to(#E0E0E0));
 }
 
 #markdown_source {
