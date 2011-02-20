@@ -626,7 +626,7 @@ define('ENCRYPT_KEY', '$en_key');";
 			// account selected
 			$char=$this->secure($_GET['C']);
 			$pagechar=$this->secure($_GET['C']);
-			$char="WHERE account_name LIKE '$char%' ";
+			$char=" account_name LIKE '$char%' ";
 		}
 		
 		//pagination
